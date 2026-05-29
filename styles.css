@@ -22,8 +22,15 @@
   /* Tipografía accesible (Elemento 11) */
   --font: 'Segoe UI', Arial, sans-serif;
   --text-base: 16px;
-  --text-lg: 18px;
   --lh: 1.6;
+  /* Feedback card (uses own dark palette, themed separately) */
+  --feedback-bg: #111827;
+  --feedback-surface: #1f2937;
+  --feedback-border: #374151;
+  --feedback-text-dim: var(--text-muted);
+  --feedback-link: #60a5fa;
+  --feedback-link-em: #93c5fd;
+  --feedback-name: #d1fae5;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,13 +50,31 @@ body {
 /* Modo alto contraste (Elemento 11) */
 body.high-contrast {
   --bg: #000000;
+  --bg-deep: #000000;
   --surface: #111111;
+  --surface-2: #666666;
+  --border: #888888;
   --text: #ffffff;
-  --border: #555555;
+  --text-muted: #cccccc;
+  --primary: #4d9fff;
+  --primary-dark: #3a8aee;
+  --e-neutral:   #aaaaaa;
+  --e-happy:     #00ff99;
+  --e-sad:       #55ccff;
+  --e-surprised: #ffee44;
+  --e-thinking:  #cc99ff;
+  --e-confused:  #ff8888;
+  --feedback-bg: #000000;
+  --feedback-surface: #1a1a1a;
+  --feedback-border: #666666;
+  --feedback-name: #aaffcc;
+  --feedback-link: #88ccff;
+  --feedback-link-em: #aaddff;
 }
 
 /* Modo reducir brillo (Elemento 11) */
 body.reduce-brightness {
+  --e-neutral:   #6d7f91;
   --e-happy:     #4a9e80;
   --e-sad:       #5090a8;
   --e-surprised: #b09050;
@@ -110,7 +135,7 @@ body.reduce-brightness {
   font-size: var(--text-base);
   transition: border-color var(--transition);
 }
-.api-setup input:focus { outline: none; border-color: var(--primary); }
+.api-setup input:focus { outline: 2px solid var(--primary); outline-offset: 2px; border-color: var(--primary); }
 .api-setup small { color: var(--text-muted); font-size: 0.8rem; }
 
 /* ===== PANTALLA PRINCIPAL ===== */
@@ -314,14 +339,14 @@ input[type="range"] { width: 100%; accent-color: var(--primary); }
 .feedback-card {
   align-self: flex-start;
   width: min(92%, 580px);
-  background: #111827;
-  border: 1px solid #374151;
+  background: var(--feedback-bg);
+  border: 1px solid var(--feedback-border);
   border-radius: var(--radius);
   overflow: hidden;
   animation: fadeIn 0.3s ease;
 }
 .feedback-header {
-  background: #1f2937;
+  background: var(--feedback-surface);
   padding: 0.5rem 0.9rem;
   display: flex;
   align-items: center;
@@ -330,7 +355,7 @@ input[type="range"] { width: 100%; accent-color: var(--primary); }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9ca3af;
+  color: var(--feedback-text-dim);
 }
 .feedback-score {
   background: var(--e-happy);
@@ -367,17 +392,17 @@ input[type="range"] { width: 100%; accent-color: var(--primary); }
 .feedback-dot.yellow { background: var(--e-surprised); }
 .feedback-dot.red    { background: var(--e-confused); }
 
-.feedback-item-name  { color: #d1fae5; font-weight: 600; }
-.feedback-item-desc  { color: #6b7280; font-size: 0.75rem; margin-top: 1px; }
+.feedback-item-name  { color: var(--feedback-name); font-weight: 600; }
+.feedback-item-desc  { color: var(--text-muted); font-size: 0.75rem; margin-top: 1px; }
 
 .feedback-suggestion {
-  background: #1f2937;
-  border-top: 1px solid #374151;
+  background: var(--feedback-surface);
+  border-top: 1px solid var(--feedback-border);
   padding: 0.5rem 0.9rem;
   font-size: 0.8rem;
-  color: #60a5fa;
+  color: var(--feedback-link);
 }
-.feedback-suggestion em { color: #93c5fd; }
+.feedback-suggestion em { color: var(--feedback-link-em); }
 
 /* Respuestas rápidas (Elemento 8) */
 .quick-replies {
@@ -420,7 +445,7 @@ input[type="range"] { width: 100%; accent-color: var(--primary); }
   resize: none;
   transition: border-color var(--transition);
 }
-#user-input:focus { outline: none; border-color: var(--primary); }
+#user-input:focus { outline: 2px solid var(--primary); outline-offset: 2px; border-color: var(--primary); }
 
 /* Botones */
 .btn-primary {
@@ -465,3 +490,11 @@ input[type="range"] { width: 100%; accent-color: var(--primary); }
 
 /* Progress section */
 .progress-section { margin-top: 1rem; }
+
+/* Accesibilidad: respetar preferencia de movimiento reducido (Elemento 11) */
+@media (prefers-reduced-motion: reduce) {
+  #avatar-canvas.speaking,
+  #avatar-canvas.thinking { animation: none; }
+  .message, .feedback-card { animation: none; }
+  #chat-messages { scroll-behavior: auto; }
+}
