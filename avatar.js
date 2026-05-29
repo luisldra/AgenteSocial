@@ -16,9 +16,19 @@ const EMOTION_LABELS = {
   confused:  '😕 Confundido',
 };
 
+const EMOTION_CONFIGS = {
+  neutral:   { browsOffset:0,   browsAngle:0,     eyeScale:1,    mouthType:'neutral',  color: EMOTION_COLORS.neutral   },
+  happy:     { browsOffset:-7,  browsAngle:-0.1,  eyeScale:1,    mouthType:'smile',    color: EMOTION_COLORS.happy     },
+  sad:       { browsOffset:5,   browsAngle:0.18,  eyeScale:0.95, mouthType:'frown',    color: EMOTION_COLORS.sad       },
+  surprised: { browsOffset:-11, browsAngle:0,     eyeScale:1.1,  mouthType:'open',     color: EMOTION_COLORS.surprised },
+  thinking:  { browsOffset:-4,  browsAngle:-0.22, eyeScale:1,    mouthType:'thinking', color: EMOTION_COLORS.thinking  },
+  confused:  { browsOffset:3,   browsAngle:0.1,   eyeScale:1,    mouthType:'wavy',     color: EMOTION_COLORS.confused  },
+};
+
 class AvatarController {
   constructor(canvasId) {
     this.canvas  = document.getElementById(canvasId);
+    if (!this.canvas) throw new Error(`AvatarController: canvas #${canvasId} not found`);
     this.ctx     = this.canvas.getContext('2d');
     this.W       = this.canvas.width;   // 220
     this.H       = this.canvas.height;  // 240
@@ -32,16 +42,7 @@ class AvatarController {
   // browsAngle:  rotación de cejas (positivo = extremo externo hacia abajo = tristeza)
   // eyeScale:    tamaño relativo del ojo (1 = normal)
   // mouthType:   neutral | smile | frown | open | thinking | wavy
-  _config(emotion) {
-    return {
-      neutral:   { browsOffset:0,   browsAngle:0,     eyeScale:1,    mouthType:'neutral',  color: EMOTION_COLORS.neutral   },
-      happy:     { browsOffset:-7,  browsAngle:-0.1,  eyeScale:1,    mouthType:'smile',    color: EMOTION_COLORS.happy     },
-      sad:       { browsOffset:5,   browsAngle:0.18,  eyeScale:0.95, mouthType:'frown',    color: EMOTION_COLORS.sad       },
-      surprised: { browsOffset:-11, browsAngle:0,     eyeScale:1.1,  mouthType:'open',     color: EMOTION_COLORS.surprised },
-      thinking:  { browsOffset:-4,  browsAngle:-0.22, eyeScale:1,    mouthType:'thinking', color: EMOTION_COLORS.thinking  },
-      confused:  { browsOffset:3,   browsAngle:0.1,   eyeScale:1,    mouthType:'wavy',     color: EMOTION_COLORS.confused  },
-    }[emotion];
-  }
+  _config(emotion) { return EMOTION_CONFIGS[emotion]; }
 
   setEmotion(emotion) {
     if (!EMOTION_COLORS[emotion]) return;
@@ -173,8 +174,7 @@ class AvatarController {
 
   _blink() {
     this._draw(true);
-    setTimeout(() => this._draw(false), 130);
-    this._scheduleNextBlink();
+    setTimeout(() => { this._draw(false); this._scheduleNextBlink(); }, 130);
   }
 
   _scheduleNextBlink() {
@@ -189,10 +189,12 @@ class AvatarController {
 
   animateThinking(on) {
     if (on) {
+      this._prevEmotion = this.current;
       this.canvas.classList.add('thinking');
       this.setEmotion('thinking');
     } else {
       this.canvas.classList.remove('thinking');
+      if (this._prevEmotion) this.setEmotion(this._prevEmotion);
     }
   }
 
