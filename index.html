@@ -9,10 +9,10 @@
 <body>
 
   <!-- PANTALLA ÉTICA (Elemento 10) -->
-  <div id="ethics-screen" class="screen active">
+  <div id="ethics-screen" class="screen active" role="dialog" aria-modal="true" aria-labelledby="ethics-title">
     <div class="ethics-card">
-      <div class="ethics-robot">🤖</div>
-      <h1>ALEX</h1>
+      <div class="ethics-robot" aria-hidden="true">🤖</div>
+      <h1 id="ethics-title">ALEX</h1>
       <h2>Entrenador de Habilidades Sociales</h2>
       <div class="ethics-notice">
         <p><strong>⚠️ Lee esto antes de continuar:</strong></p>
@@ -26,8 +26,8 @@
       </div>
       <div class="api-setup">
         <label for="api-key-input"><strong>API Key de Groq</strong> (gratuita en console.groq.com):</label>
-        <input type="password" id="api-key-input" placeholder="gsk_..." autocomplete="off" spellcheck="false">
-        <small>Tu key nunca sale de tu navegador — va directo a Groq, no a nuestros servidores.</small>
+        <input type="password" id="api-key-input" placeholder="gsk_..." autocomplete="off" spellcheck="false" aria-describedby="api-key-hint">
+        <small id="api-key-hint">Tu key nunca sale de tu navegador — va directo a Groq, no a nuestros servidores.</small>
       </div>
       <button id="start-btn" class="btn-primary" disabled>Entiendo y quiero practicar</button>
     </div>
@@ -38,84 +38,88 @@
     <header class="app-header">
       <span class="app-title">ALEX <span class="app-subtitle">Entrenador Social</span></span>
       <div class="header-actions">
-        <button id="settings-btn" class="btn-icon" title="Configuración de accesibilidad">⚙️</button>
-        <button id="clear-btn" class="btn-icon" title="Nueva sesión">🗑️</button>
+        <button id="settings-btn" class="btn-icon" title="Configuración de accesibilidad" aria-label="Configuración de accesibilidad">⚙️</button>
+        <button id="clear-btn" class="btn-icon" title="Nueva sesión" aria-label="Nueva sesión">🗑️</button>
       </div>
     </header>
 
-    <!-- ZONA AVATAR: protagonista absoluto (Elemento 4, 5, 16) -->
-    <div class="avatar-zone">
+    <main id="main-content" aria-label="Entrenador ALEX">
 
-      <!-- Escenarios izquierda -->
-      <aside class="scenarios-panel" aria-label="Escenarios de práctica">
-        <div class="panel-label">Escenarios</div>
-        <div id="scenarios-list"></div>
-        <div class="progress-section">
-          <div class="panel-label">Progreso</div>
-          <div id="progress-display"></div>
+      <!-- ZONA AVATAR: protagonista absoluto (Elemento 4, 5, 16) -->
+      <div class="avatar-zone">
+
+        <!-- Escenarios izquierda -->
+        <aside class="scenarios-panel" aria-label="Escenarios de práctica">
+          <div class="panel-label">Escenarios</div>
+          <div id="scenarios-list"></div>
+          <div class="progress-section">
+            <div class="panel-label">Progreso</div>
+            <div id="progress-display"></div>
+          </div>
+        </aside>
+
+        <!-- Avatar central -->
+        <div class="avatar-center">
+          <div class="avatar-glow-ring" id="avatar-glow"></div>
+          <canvas id="avatar-canvas" width="220" height="240"
+            role="img" aria-label="Expresión facial de ALEX"></canvas>
+          <div class="avatar-name">ALEX</div>
+          <!-- Etiqueta emoción en texto — doble canal para Asperger (Elemento 5) -->
+          <div class="avatar-emotion-label" id="emotion-label">😐 Neutral</div>
+          <div class="avatar-actions">
+            <button id="greet-btn" class="btn-action">👋 Saludar</button>
+            <button id="encourage-btn" class="btn-action">💪 Anímame</button>
+          </div>
         </div>
-      </aside>
 
-      <!-- Avatar central -->
-      <div class="avatar-center">
-        <div class="avatar-glow-ring" id="avatar-glow"></div>
-        <canvas id="avatar-canvas" width="220" height="240"
-          aria-label="Expresión facial de ALEX"></canvas>
-        <div class="avatar-name">ALEX</div>
-        <!-- Etiqueta emoción en texto — doble canal para Asperger (Elemento 5) -->
-        <div class="avatar-emotion-label" id="emotion-label">😐 Neutral</div>
-        <div class="avatar-actions">
-          <button id="greet-btn" class="btn-action">👋 Saludar</button>
-          <button id="encourage-btn" class="btn-action">💪 Anímame</button>
+        <!-- Controles y stats derecha -->
+        <aside class="controls-panel" aria-label="Controles y estadísticas">
+          <div class="panel-label">Voz</div>
+          <!-- Accesibilidad audio (Elemento 11) -->
+          <div class="audio-controls">
+            <button id="tts-toggle" class="btn-icon active" title="Activar/pausar voz" aria-label="Activar o pausar voz">🔊</button>
+            <button id="mic-btn" class="btn-icon" title="Usar micrófono" aria-label="Usar micrófono">🎤</button>
+          </div>
+          <label class="control-label" for="speech-rate">Velocidad:</label>
+          <input type="range" id="speech-rate" min="0.5" max="1.5" step="0.1" value="0.9"
+            aria-label="Velocidad de la voz de ALEX">
+
+          <!-- Panel de accesibilidad (Elemento 11) -->
+          <div class="panel-label" style="margin-top:1rem;">Accesibilidad</div>
+          <label class="toggle-label">
+            <input type="checkbox" id="reduce-brightness"> Reducir brillo
+          </label>
+          <label class="toggle-label">
+            <input type="checkbox" id="high-contrast"> Alto contraste
+          </label>
+        </aside>
+      </div>
+
+      <!-- ZONA CHAT: secundaria, parte inferior -->
+      <div class="chat-zone">
+        <div id="chat-messages" role="log" aria-live="polite" aria-label="Conversación con ALEX"></div>
+        <div class="quick-replies" id="quick-replies-container" role="group" aria-label="Respuestas rápidas"></div>
+        <div class="input-area">
+          <textarea id="user-input" rows="2"
+            placeholder="Escribe cómo responderías en esta situación... (Enter para enviar)"
+            aria-label="Escribe tu mensaje a ALEX"
+            maxlength="500"></textarea>
+          <button id="send-btn" class="btn-primary" aria-label="Enviar mensaje">Enviar</button>
         </div>
       </div>
 
-      <!-- Controles y stats derecha -->
-      <aside class="controls-panel" aria-label="Controles y estadísticas">
-        <div class="panel-label">Voz</div>
-        <!-- Accesibilidad audio (Elemento 11) -->
-        <div class="audio-controls">
-          <button id="tts-toggle" class="btn-icon active" title="Activar/pausar voz">🔊</button>
-          <button id="mic-btn" class="btn-icon" title="Usar micrófono">🎤</button>
-        </div>
-        <label class="control-label" for="speech-rate">Velocidad:</label>
-        <input type="range" id="speech-rate" min="0.5" max="1.5" step="0.1" value="0.9"
-          aria-label="Velocidad de la voz de ALEX">
-
-        <!-- Panel de accesibilidad (Elemento 11) -->
-        <div class="panel-label" style="margin-top:1rem;">Accesibilidad</div>
-        <label class="toggle-label">
-          <input type="checkbox" id="reduce-brightness"> Reducir brillo
-        </label>
-        <label class="toggle-label">
-          <input type="checkbox" id="high-contrast"> Alto contraste
-        </label>
-      </aside>
-    </div>
-
-    <!-- ZONA CHAT: secundaria, parte inferior -->
-    <div class="chat-zone">
-      <div id="chat-messages" role="log" aria-live="polite" aria-label="Conversación con ALEX"></div>
-      <div class="quick-replies" id="quick-replies-container" aria-label="Respuestas rápidas"></div>
-      <div class="input-area">
-        <textarea id="user-input" rows="2"
-          placeholder="Escribe cómo responderías en esta situación... (Enter para enviar)"
-          aria-label="Escribe tu mensaje a ALEX"
-          maxlength="500"></textarea>
-        <button id="send-btn" class="btn-primary" aria-label="Enviar mensaje">Enviar</button>
-      </div>
-    </div>
+    </main>
   </div>
 
-  <script src="scenarios.js"></script>
-  <script src="avatar.js"></script>
-  <script src="agent.js"></script>
-  <script src="speech.js"></script>
-  <script src="app.js"></script>
   <script>
 document.getElementById('api-key-input').addEventListener('input', function() {
   document.getElementById('start-btn').disabled = this.value.trim().length < 10;
 });
 </script>
+  <script src="scenarios.js"></script>
+  <script src="avatar.js"></script>
+  <script src="agent.js"></script>
+  <script src="speech.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
