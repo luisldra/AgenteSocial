@@ -7,6 +7,10 @@ class SpeechController {
     this.onEnd        = null;   // callback() — avatar termina de "hablar"
     this.onTranscript = null;   // callback(text) — STT devuelve texto
     this._recognition = null;
+    this.voices = [];
+    this.synth.onvoiceschanged = () => {
+      this.voices = this.synth.getVoices();
+    };
     this._initSTT();
   }
 
@@ -26,9 +30,10 @@ class SpeechController {
     utt.rate  = this.rate;
     utt.pitch = 1.0;
 
-    // Preferir voz en español
-    const voices = this.synth.getVoices();
-    const esVoice = voices.find(v => v.lang.startsWith('es') && v.name.includes('Google'))
+    // Preferir voz en español de Colombia o Latinoamérica
+    let voices = this.voices.length ? this.voices : this.synth.getVoices();
+    const esVoice = voices.find(v => v.lang === 'es-CO')
+                 || voices.find(v => v.lang.startsWith('es') && v.name.includes('Google'))
                  || voices.find(v => v.lang.startsWith('es'));
     if (esVoice) utt.voice = esVoice;
 

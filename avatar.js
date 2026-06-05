@@ -35,6 +35,78 @@ class AvatarController {
     this.current = 'neutral';
     this._blinkTimer = null;
     this._scheduleNextBlink();
+    
+    this.targetEyePos = { x: 0, y: 0 };
+    this.interactionState = null;
+    this.interactionTimer = null;
+    this._setupInteractions();
+  }
+
+  _setupInteractions() {
+    window.addEventListener('mousemove', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      
+      const angle = Math.atan2(dy, dx);
+      const maxDist = 8;
+      const dist = Math.min(Math.sqrt(dx*dx + dy*dy) * 0.04, maxDist);
+      
+      this.targetEyePos = {
+        x: Math.cos(angle) * dist,
+        y: Math.sin(angle) * dist
+      };
+      
+      if (!this.interactionState && !this.canvas.classList.contains('speaking') && !this.canvas.classList.contains('thinking')) {
+        this._draw();
+      }
+    });
+
+    let isDown = false;
+    let downTime = 0;
+    let dragDist = 0;
+
+    this.canvas.addEventListener('mousedown', () => {
+      isDown = true;
+      downTime = Date.now();
+      dragDist = 0;
+    });
+
+    this.canvas.addEventListener('mousemove', (e) => {
+      if (isDown) dragDist += Math.abs(e.movementX) + Math.abs(e.movementY);
+    });
+
+    this.canvas.addEventListener('mouseup', () => {
+      if (!isDown) return;
+      isDown = false;
+      const duration = Date.now() - downTime;
+
+      if (duration < 300 && dragDist < 10) {
+        this._triggerInteraction('surprised');
+      } else if (dragDist > 20) {
+        this._triggerInteraction('happy');
+      }
+    });
+    
+    this.canvas.addEventListener('mouseleave', () => { isDown = false; });
+  }
+
+  _triggerInteraction(emotion) {
+    if (this._blinkTimer) clearTimeout(this._blinkTimer);
+    if (this.interactionTimer) clearTimeout(this.interactionTimer);
+    
+    this.interactionState = emotion;
+    const oldEmotion = this.current;
+    this.setEmotion(emotion);
+    
+    this.interactionTimer = setTimeout(() => {
+      this.interactionState = null;
+      this.setEmotion(oldEmotion);
+      this._scheduleNextBlink();
+    }, 2000);
   }
 
   // Configuración visual por emoción
@@ -103,12 +175,12 @@ class AvatarController {
       if (!blinking) {
         // Pupila
         ctx.beginPath();
-        ctx.arc(ex, eyeY + 2, eyeR * 0.6, 0, Math.PI * 2);
+        ctx.arc(ex + this.targetEyePos.x, eyeY + 2 + this.targetEyePos.y, eyeR * 0.6, 0, Math.PI * 2);
         ctx.fillStyle = '#1a0a02';
         ctx.fill();
         // Reflejo
         ctx.beginPath();
-        ctx.arc(ex + eyeR * 0.22, eyeY - eyeR * 0.22, eyeR * 0.2, 0, Math.PI * 2);
+        ctx.arc(ex + eyeR * 0.22 + this.targetEyePos.x, eyeY - eyeR * 0.22 + this.targetEyePos.y, eyeR * 0.2, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(255,255,255,0.85)';
         ctx.fill();
       }

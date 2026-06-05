@@ -5,20 +5,73 @@ let busy   = false;
 let micOn  = false;
 
 document.addEventListener('DOMContentLoaded', () => {
-  const apiInput = document.getElementById('api-key-input');
   const startBtn = document.getElementById('start-btn');
-
-  apiInput.addEventListener('input', () => {
-    startBtn.disabled = apiInput.value.trim().length < 10;
+  
+  const checkKeys = () => {
+    const groqHasKey = Array.from(document.querySelectorAll('.groq-key')).some(i => i.value.trim().length > 5);
+    const geminiHasKey = Array.from(document.querySelectorAll('.gemini-key')).some(i => i.value.trim().length > 5);
+    startBtn.disabled = !(groqHasKey || geminiHasKey);
+  };
+  
+  document.addEventListener('input', e => {
+    if (e.target.classList.contains('groq-key') || e.target.classList.contains('gemini-key')) {
+      checkKeys();
+    }
   });
-  startBtn.addEventListener('click', _boot);
+
+  startBtn.addEventListener('click', () => {
+    document.getElementById('keys-modal-body').appendChild(document.getElementById('api-keys-module'));
+    _boot();
+  });
+
+  // Modal de keys
+  document.getElementById('open-keys-btn').addEventListener('click', () => {
+    document.getElementById('keys-modal').classList.add('active');
+  });
+  document.getElementById('close-modal-btn').addEventListener('click', () => {
+    document.getElementById('keys-modal').classList.remove('active');
+  });
+
+  // Botones para agregar más inputs de keys
+  document.getElementById('add-groq-btn').addEventListener('click', () => {
+    const c = document.getElementById('groq-keys-container');
+    const div = document.createElement('div');
+    div.className = 'key-row';
+    div.style.cssText = 'display:flex; gap:4px; align-items:center;';
+    div.innerHTML = `
+      <input type="password" class="key-input groq-key" placeholder="Key Groq (gsk_...)">
+      <button class="btn-icon delete-key-btn" style="color:#ef4444; font-size:1rem; cursor:pointer;" title="Eliminar llave">✖</button>
+    `;
+    c.appendChild(div);
+  });
+  document.getElementById('add-gemini-btn').addEventListener('click', () => {
+    const c = document.getElementById('gemini-keys-container');
+    const div = document.createElement('div');
+    div.className = 'key-row';
+    div.style.cssText = 'display:flex; gap:4px; align-items:center;';
+    div.innerHTML = `
+      <input type="password" class="key-input gemini-key" placeholder="Key Gemini (AIza...)">
+      <button class="btn-icon delete-key-btn" style="color:#ef4444; font-size:1rem; cursor:pointer;" title="Eliminar llave">✖</button>
+    `;
+    c.appendChild(div);
+  });
+
+  // Delegación para eliminar llaves
+  document.addEventListener('click', e => {
+    if (e.target.closest('.delete-key-btn')) {
+      const row = e.target.closest('.key-row');
+      if (row) {
+        row.remove();
+        checkKeys();
+      }
+    }
+  });
 });
 
 // ── INICIALIZACIÓN ─────────────────────────────────────────────────────────
 function _boot() {
-  const key = document.getElementById('api-key-input').value.trim();
-
-  agent  = new AgentController(key);
+  const provider = document.getElementById('provider-select').value;
+  agent  = new AgentController({ provider, keys: { groq: [], gemini: [] } });
   avatar = new AvatarController('avatar-canvas');
   speech = new SpeechController();
 
@@ -33,7 +86,6 @@ function _boot() {
   document.getElementById('ethics-screen').classList.remove('active');
   const main = document.getElementById('main-screen');
   main.classList.add('active');
-  main.style.display = 'flex';
 
   // Cargar escenarios
   _renderScenarios();
@@ -85,6 +137,18 @@ function _setupListeners() {
   document.getElementById('high-contrast').addEventListener('change', e => {
     document.body.classList.toggle('high-contrast', e.target.checked);
   });
+
+  // Chat flotante minimize/maximize
+  const chatZone = document.getElementById('chat-zone');
+  document.getElementById('minimize-chat-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    chatZone.classList.toggle('minimized');
+  });
+  document.getElementById('chat-header').addEventListener('click', () => {
+    if (chatZone.classList.contains('minimized')) {
+      chatZone.classList.remove('minimized');
+    }
+  });
 }
 
 // ── ENVÍO DE MENSAJE ───────────────────────────────────────────────────────
@@ -93,6 +157,19 @@ async function _send() {
   const input = document.getElementById('user-input');
   const text  = input.value.trim();
   if (!text) return;
+
+  // Actualizar llaves en el agente antes de enviar
+  const groqInputs = Array.from(document.querySelectorAll('.groq-key'));
+  const geminiInputs = Array.from(document.querySelectorAll('.gemini-key'));
+  
+  agent.keys.groq = groqInputs.map(i => i.value.trim()).filter(k => k);
+  agent.keys.gemini = geminiInputs.map(i => i.value.trim()).filter(k => k);
+  agent.provider = document.getElementById('provider-select').value;
+
+  if (agent.keys.groq.length === 0 && agent.keys.gemini.length === 0) {
+    _appendMessage('system', '⚠️ No has introducido ninguna API Key en el panel derecho. Por favor, agrega al menos una para poder enviarle el mensaje a ALEX.');
+    return;
+  }
 
   input.value = '';
   busy = true;
@@ -269,8 +346,8 @@ function _setStatus(txt) {
 function _welcome() {
   _appendMessage('agent',
     '¡Hola! Soy ALEX, tu entrenador de habilidades sociales.\n\n' +
-    'Selecciona un escenario en el panel izquierdo y practicamos juntos. ' +
-    'Yo asumo el rol del otro personaje y te doy retroalimentación directa después de cada intercambio.'
+    'Ya tengo registradas tus llaves. Selecciona un escenario en el panel izquierdo y envíame un mensaje para empezar a practicar.\n\n' +
+    '(Si necesitas agregar más llaves o cambiar el proveedor, haz clic en el botón "🔑 Configurar Proveedor y Keys" en el panel derecho).'
   );
 }
 
