@@ -79,8 +79,7 @@ function _boot() {
   speech.onEnd   = () => { avatar.animateTalking(false); avatar.setEmotion('neutral'); };
   speech.onTranscript = txt => {
     document.getElementById('user-input').value = txt;
-    _send();
-  };
+  };  
 
   // Mostrar pantalla principal
   document.getElementById('ethics-screen').classList.remove('active');
@@ -129,7 +128,7 @@ function _setupListeners() {
   document.getElementById('speech-rate').addEventListener('input', e => {
     speech.setRate(parseFloat(e.target.value));
   });
-  document.getElementById('mic-btn').addEventListener('click', _toggleMic);
+  document.getElementById('chat-mic-btn').addEventListener('click', _toggleMic);
   document.getElementById('clear-btn').addEventListener('click', _clear);
   document.getElementById('reduce-brightness').addEventListener('change', e => {
     document.body.classList.toggle('reduce-brightness', e.target.checked);
@@ -149,6 +148,9 @@ function _setupListeners() {
       chatZone.classList.remove('minimized');
     }
   });
+  document
+  .getElementById('chat-mic-btn')
+  .addEventListener('click', _toggleMic);
 }
 
 // ── ENVÍO DE MENSAJE ───────────────────────────────────────────────────────
@@ -302,20 +304,30 @@ function _clearQR() {
 // ── MICRÓFONO ──────────────────────────────────────────────────────────────
 function _toggleMic() {
   if (!speech.sttSupported) {
-    _appendMessage('system', 'Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.');
+    _appendMessage('system',
+      'Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.'
+    );
     return;
   }
+
   micOn = !micOn;
-  const btn = document.getElementById('mic-btn');
+
+  const btn = document.getElementById('chat-mic-btn');
+
   if (micOn) {
     speech.startListening();
+    avatar.setEmotion('listening');
+
     btn.classList.add('active');
     btn.textContent = '🔴';
+
     _setStatus('Escuchando...');
   } else {
     speech.stopListening();
+
     btn.classList.remove('active');
     btn.textContent = '🎤';
+
     _setStatus('');
   }
 }

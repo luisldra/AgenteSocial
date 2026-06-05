@@ -74,12 +74,22 @@ body.high-contrast {
 
 /* Modo reducir brillo (Elemento 11) */
 body.reduce-brightness {
-  --e-neutral:   #6d7f91;
-  --e-happy:     #4a9e80;
-  --e-sad:       #5090a8;
-  --e-surprised: #b09050;
-  --e-thinking:  #8870b8;
-  --e-confused:  #b07070;
+  --primary: #1d4ed8;
+  --primary-dark: #1e40af;
+}
+
+body.reduce-brightness .avatar-glow-ring {
+  opacity: 0.35;
+}
+
+body.reduce-brightness #avatar-canvas {
+  filter: drop-shadow(0 0 5px rgba(37,99,235,0.2));
+}
+
+body.reduce-brightness .chat-zone,
+body.reduce-brightness .app-header,
+body.reduce-brightness .avatar-zone {
+  filter: brightness(0.85);
 }
 
 /* Accesibilidad: foco visible */
@@ -537,8 +547,9 @@ input[type="range"] { width: 100%; accent-color: var(--primary); }
 /* Input area */
 .input-area {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
-  padding: 0.6rem 1.25rem;
+  padding: 0.75rem;
   background: var(--bg-deep);
   border-top: 1px solid var(--border);
 }
@@ -606,4 +617,16 @@ input[type="range"] { width: 100%; accent-color: var(--primary); }
   #avatar-canvas.thinking { animation: none; }
   .message, .feedback-card { animation: none; }
   #chat-messages { scroll-behavior: auto; }
+}
+
+#chat-mic-btn{
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  align-self: center;
+}
+
+#user-input{
+  min-height: 46px;
+  max-height: 120px;
 }
