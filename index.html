@@ -18,23 +18,61 @@
         <p><strong>⚠️ Lee esto antes de continuar:</strong></p>
         <ul>
           <li><strong>ALEX es una Inteligencia Artificial</strong>, no es un humano ni un profesional de salud mental.</li>
-          <li>No puede diagnosticar ni tratar ninguna condición médica o psicológica.</li>
           <li>Está diseñado para <em>practicar situaciones sociales</em> en un ambiente seguro y sin juicios.</li>
-          <li>Tus conversaciones se guardan <em>solo en tu navegador</em> (localStorage). Puedes borrarlas cuando quieras.</li>
-          <li>Si necesitas ayuda profesional, contacta a un especialista.</li>
         </ul>
       </div>
-      <div class="api-setup">
-        <label for="api-key-input"><strong>API Key de Groq</strong> (gratuita en console.groq.com):</label>
-        <input type="password" id="api-key-input" placeholder="gsk_..." autocomplete="off" spellcheck="false" aria-describedby="api-key-hint">
-        <small id="api-key-hint">Tu key nunca sale de tu navegador — va directo a Groq, no a nuestros servidores.</small>
+      
+      <div id="api-keys-module" class="api-setup">
+        <div class="provider-selector">
+          <label for="provider-select"><strong>Proveedor Inicial:</strong></label>
+          <select id="provider-select">
+            <option value="groq">Groq</option>
+            <option value="gemini">Gemini</option>
+          </select>
+        </div>
+        
+        <div class="keys-inputs">
+          <div class="key-box">
+            <label><strong>Keys Groq</strong></label>
+            <div id="groq-keys-container" style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;">
+              <div class="key-row" style="display:flex; gap:4px; align-items:center;">
+                <input type="password" class="key-input groq-key" placeholder="Key Groq (gsk_...)">
+                <button class="btn-icon delete-key-btn" style="color:#ef4444; font-size:1rem; cursor:pointer;" title="Eliminar llave">✖</button>
+              </div>
+            </div>
+            <button id="add-groq-btn" class="btn-action" style="font-size:0.7rem;">+ Añadir Groq</button>
+          </div>
+          <div class="key-box">
+            <label><strong>Keys Gemini</strong></label>
+            <div id="gemini-keys-container" style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;">
+              <div class="key-row" style="display:flex; gap:4px; align-items:center;">
+                <input type="password" class="key-input gemini-key" placeholder="Key Gemini (AIza...)">
+                <button class="btn-icon delete-key-btn" style="color:#ef4444; font-size:1rem; cursor:pointer;" title="Eliminar llave">✖</button>
+              </div>
+            </div>
+            <button id="add-gemini-btn" class="btn-action" style="font-size:0.7rem;">+ Añadir Gemini</button>
+          </div>
+        </div>
+        <small id="api-key-hint">Tus keys nunca salen del navegador. Si una falla por límite, rotará automáticamente.</small>
       </div>
+
       <button id="start-btn" class="btn-primary" disabled>Entiendo y quiero practicar</button>
     </div>
   </div>
 
   <!-- PANTALLA PRINCIPAL (Elemento 16: hogar/educativo, individual, PC) -->
   <div id="main-screen" class="screen">
+
+  <!-- MODAL DE KEYS (Oculto) -->
+  <div id="keys-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Configuración de API Keys</h3>
+        <button id="close-modal-btn" class="btn-icon">✖</button>
+      </div>
+      <div id="keys-modal-body"></div>
+    </div>
+  </div>
     <header class="app-header">
       <span class="app-title">ALEX <span class="app-subtitle">Entrenador Social</span></span>
       <div class="header-actions">
@@ -65,7 +103,7 @@
             role="img" aria-label="Expresión facial de ALEX"></canvas>
           <div class="avatar-name">ALEX</div>
           <!-- Etiqueta emoción en texto — doble canal para Asperger (Elemento 5) -->
-          <div class="avatar-emotion-label" id="emotion-label">😐 Neutral</div>
+          <div class="avatar-emotion-label" id="emotion-label" aria-live="polite">😐 Neutral</div>
           <div class="avatar-actions">
             <button id="greet-btn" class="btn-action">👋 Saludar</button>
             <button id="encourage-btn" class="btn-action">💪 Anímame</button>
@@ -92,11 +130,20 @@
           <label class="toggle-label">
             <input type="checkbox" id="high-contrast"> Alto contraste
           </label>
+
+          <!-- API KEYS SECTION -->
+          <div class="panel-label" style="margin-top:1rem;">API Keys</div>
+          <button id="open-keys-btn" class="btn-action" style="width:100%;">🔑 Configurar Proveedor y Keys</button>
+
         </aside>
       </div>
 
-      <!-- ZONA CHAT: secundaria, parte inferior -->
-      <div class="chat-zone">
+      <!-- ZONA CHAT: flotante -->
+      <div class="chat-zone" id="chat-zone">
+        <div class="chat-header" id="chat-header" aria-label="Minimizar o expandir chat">
+          <span>💬 Chat con ALEX</span>
+          <button id="minimize-chat-btn" class="btn-icon" title="Minimizar chat">_</button>
+        </div>
         <div id="chat-messages" role="log" aria-live="polite" aria-label="Conversación con ALEX"></div>
         <div class="quick-replies" id="quick-replies-container" role="group" aria-label="Respuestas rápidas"></div>
         <div class="input-area">
@@ -111,11 +158,6 @@
     </main>
   </div>
 
-  <script>
-document.getElementById('api-key-input').addEventListener('input', function() {
-  document.getElementById('start-btn').disabled = this.value.trim().length < 10;
-});
-</script>
   <script src="scenarios.js"></script>
   <script src="avatar.js"></script>
   <script src="agent.js"></script>

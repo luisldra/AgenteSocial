@@ -1,6 +1,7 @@
 class AgentController {
-  constructor(apiKey) {
-    this.apiKey       = apiKey;
+  constructor(config) {
+    this.provider     = config.provider || 'groq';
+    this.keys         = config.keys || { groq: [], gemini: [] };
     this.model        = 'llama-3.3-70b-versatile';
     this.temperature  = 0.65;
     this.maxTokens    = 650;
@@ -13,17 +14,43 @@ class AgentController {
     this.frustration  = 0;
     this.confidence   = 'normal';
     this.stats        = this._loadStats();
+    this.userProfile = {
+      strengths: [],
+      weaknesses: [],
+      averageScore: 0,
+      totalScores: 0,
+      scoreCount: 0
+    };
   }
 
   // ── SYSTEM PROMPT ──────────────────────────────────────────────────────────
   _systemPrompt() {
     const adaptive = this._adaptiveTone();
+    const profile = `
+    ## PROGRESO DEL USUARIO
+
+    Fortalezas:
+    ${this.userProfile.strengths.join(", ") || "ninguna"}
+
+    Aspectos por mejorar:
+    ${this.userProfile.weaknesses.join(", ") || "ninguno"}
+
+    Promedio:
+    ${this.userProfile.averageScore.toFixed(1)}
+    `;
 
     return `Eres ALEX, un entrenador de habilidades sociales diseñado para personas con Síndrome de Asperger en Colombia.
 
 ## IDENTIDAD (Elemento 15 — Diseño narrativo)
 Nombre: ALEX. Eres un agente de IA, no un humano ni un profesional de salud.
+Tipo de agente: Agente Social Interactivo Adaptativo orientado al entrenamiento de habilidades sociales.
+Características:
+- Simulación de situaciones sociales.
+- Retroalimentación explícita.
+- Adaptación según desempeño.
+- Memoria de progreso.
 Tu razón de ser: ofrecer un espacio seguro para PRACTICAR situaciones sociales sin presión ni consecuencias.
+Historia:Fuiste desarrollado por un equipo interdisciplinario de educación y tecnología para ayudar a personas con Asperger a practicar situaciones sociales mediante simulaciones repetidas y retroalimentación explícita. No eres un chatbot genérico. Fuiste creado específicamente para entrenamiento social.
 Rol: entrenador/coach — no amigo, no terapeuta, no juez.
 
 ## PERSONALIDAD (Elemento 6)
@@ -40,16 +67,30 @@ Rol: entrenador/coach — no amigo, no terapeuta, no juez.
 - NUNCA uses mamagallismo ni ironía con el usuario.
 
 ## FORMATO DE RESPUESTA — MUY IMPORTANTE
-Para CADA respuesta durante la simulación de un escenario, debes responder así:
+Para cada turno:
 
-[ACT] (aquí va tu actuación como el personaje del escenario, en 1-2 oraciones máximo)
-[FEEDBACK_START]
-SCORE:(número del 1 al 10)
-🟢 (nombre habilidad corto) | (descripción de 1 línea de por qué estuvo bien)
-🟡 (nombre habilidad corto) | (descripción de 1 línea de qué mejorar)
-🔴 (nombre habilidad corto) | (descripción de 1 línea del problema)
-💡 "(sugerencia exacta de qué decir la próxima vez, entre comillas)"
-[FEEDBACK_END]
+1. ACT:
+Debes actuar como el personaje del escenario.
+
+2. FEEDBACK:
+Debes evaluar EXCLUSIVAMENTE la respuesta del usuario.
+
+NO evalúes tu propia actuación.
+
+Analiza:
+
+- cortesía
+- claridad
+- empatía
+- escucha
+- respeto
+- manejo del rechazo
+- inicio de conversación
+- mantenimiento de conversación
+
+El SCORE corresponde únicamente al desempeño del usuario.
+
+${profile}
 
 Reglas del formato:
 - SCORE debe ser un número entero del 1 al 10.
@@ -124,10 +165,46 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
     this._detectSignals(userMsg);
     const messages = this._buildMessages(userMsg);
 
+    while (true) {
+      if (this.keys[this.provider].length === 0) {
+        this.provider = this.provider === 'groq' ? 'gemini' : 'groq';
+        if (this.keys[this.provider].length === 0) {
+          throw new Error('Saldo / Tokens insuficientes en todas las cuentas proporcionadas.');
+        }
+      }
+
+      const key = this.keys[this.provider][0];
+      try {
+        let reply = '';
+        if (this.provider === 'groq') {
+          reply = await this._sendToGroq(messages, key);
+        } else {
+          reply = await this._sendToGemini(userMsg, key);
+        }
+
+        this._addToMemory('user', userMsg);
+        this._addToMemory('assistant', reply);
+        this.stats.messages++;
+        this._saveStats();
+
+        return this._parseReply(reply);
+      } catch (err) {
+        const errorText = err.message.toLowerCase();
+        if (errorText.includes('429') || errorText.includes('401') || errorText.includes('403') || errorText.includes('quota')) {
+          console.warn(`Key falló para ${this.provider}. Rotando...`);
+          this.keys[this.provider].shift();
+        } else {
+          throw err;
+        }
+      }
+    }
+  }
+
+  async _sendToGroq(messages, key) {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'Authorization': `Bearer ${key}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -144,14 +221,47 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
     }
 
     const data  = await res.json();
-    const reply = data.choices?.[0]?.message?.content || '';
+    return data.choices?.[0]?.message?.content || '';
+  }
 
-    this._addToMemory('user', userMsg);
-    this._addToMemory('assistant', reply);
-    this.stats.messages++;
-    this._saveStats();
+  async _sendToGemini(userMsg, key) {
+    const sysMsg = this._systemPrompt() + (this.summary ? `\n\n[Contexto de sesión: ${this.summary}]` : '');
+    
+    const contents = [];
+    for (const m of this.buffer) {
+      contents.push({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      });
+    }
+    contents.push({ role: 'user', parts: [{ text: userMsg }] });
 
-    return this._parseReply(reply);
+    const requestBody = {
+      contents: contents,
+      systemInstruction: { parts: [{ text: sysMsg }] },
+      generationConfig: {
+        temperature: this.temperature,
+        maxOutputTokens: this.maxTokens
+      }
+    };
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Gemini ${res.status}: ${err}`);
+    }
+
+    const data = await res.json();
+    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+      return data.candidates[0].content.parts[0].text;
+    }
+    return '';
   }
 
   // ── PARSER DE RESPUESTA ────────────────────────────────────────────────────
@@ -165,23 +275,60 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
 
     const fbBlock = fbMatch[1];
 
-    const scoreMatch = fbBlock.match(/SCORE:(\d+)/);
+    // Permite espacios y asteriscos (markdown) alrededor de SCORE:
+    const scoreMatch = fbBlock.match(/SCORE:\s*\*?\*?\s*(\d+)/i);
     const score = scoreMatch ? parseInt(scoreMatch[1]) : null;
 
     const items = [];
-    const itemRe = /(🟢|🟡|🔴)\s*([^|]+)\|(.+)/g;
+    // Permite formato de markdown o espacios extra
+    const itemRe = /(🟢|🟡|🔴)\s*\*?\*?([^|]+?)\*?\*?\s*\|\s*(.+)/g;
     let m;
     while ((m = itemRe.exec(fbBlock)) !== null) {
       const dotColor = m[1] === '🟢' ? 'green' : m[1] === '🟡' ? 'yellow' : 'red';
       items.push({ dot: dotColor, name: m[2].trim(), desc: m[3].trim() });
     }
 
-    const sugMatch = fbBlock.match(/💡\s*"([^"]+)"/);
-    const suggestion = sugMatch ? sugMatch[1] : null;
+    this._updateProfile(score, items);
+
+    // Permite que la sugerencia no tenga comillas y maneja markdown
+    const sugMatch = fbBlock.match(/💡\s*["']?([^"'\n]+)["']?/);
+    const suggestion = sugMatch ? sugMatch[1].trim() : null;
 
     const emotion = this._emotionFromFeedback(score, items);
 
     return { act, feedback: { score, items, suggestion }, emotion };
+  }
+
+  _updateProfile(score, items) {
+
+    if(score === null) return;
+
+    this.userProfile.totalScores += score;
+    this.userProfile.scoreCount++;
+
+    this.userProfile.averageScore =
+        this.userProfile.totalScores /
+        this.userProfile.scoreCount;
+
+    items.forEach(item => {
+
+        if(item.dot === "green") {
+
+            if(!this.userProfile.strengths.includes(item.name))
+                this.userProfile.strengths.push(item.name);
+
+        }
+
+        if(item.dot === "red") {
+
+            if(!this.userProfile.weaknesses.includes(item.name))
+                this.userProfile.weaknesses.push(item.name);
+
+        }
+
+    });
+
+    this._saveSession();
   }
 
   _emotionFromFeedback(score, items) {
@@ -198,7 +345,7 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
   // ── ESCENARIO ──────────────────────────────────────────────────────────────
   setScenario(scenario) {
     this.scenario    = scenario;
-    this.buffer      = [];
+    this.buffer = this.buffer.slice(-4);
     this.frustration = 0;
     this.confidence  = 'normal';
     this._saveSession();
@@ -215,11 +362,15 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
   // ── PERSISTENCIA ──────────────────────────────────────────────────────────
   _saveSession() {
     try {
-      localStorage.setItem('alex_session', JSON.stringify({
-        buffer:     this.buffer,
-        summary:    this.summary,
-        scenarioId: this.scenario?.id ?? null
-      }));
+      localStorage.setItem(
+        'alex_session',
+        JSON.stringify({
+            buffer: this.buffer,
+            summary: this.summary,
+            scenarioId: this.scenario?.id ?? null,
+            profile: this.userProfile
+        })
+      )
     } catch {}
   }
 
@@ -230,6 +381,15 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
       const d = JSON.parse(s);
       this.buffer  = d.buffer  || [];
       this.summary = d.summary || '';
+      this.userProfile =
+        d.profile ||
+        {
+          strengths: [],
+          weaknesses: [],
+          averageScore: 0,
+          totalScores: 0,
+          scoreCount: 0
+        };
       return d.scenarioId;
     } catch { return null; }
   }
