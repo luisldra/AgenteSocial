@@ -12,6 +12,7 @@ class SpeechController {
       this.voices = this.synth.getVoices();
     };
     this._initSTT();
+    this.isListening = false;
   }
 
   speak(text) {
@@ -40,6 +41,7 @@ class SpeechController {
     utt.onstart = () => { if (this.onStart) this.onStart(); };
     utt.onend   = () => { if (this.onEnd)   this.onEnd();   };
     utt.onerror = () => { if (this.onEnd)   this.onEnd();   };
+    console.log("Rate:", this.rate);
     this.synth.speak(utt);
   }
 
@@ -58,22 +60,43 @@ class SpeechController {
     if (!SR) return;
     this._recognition               = new SR();
     this._recognition.lang          = 'es-CO';
-    this._recognition.continuous    = false;
-    this._recognition.interimResults = false;
+    this._recognition.continuous    = true;
+    this._recognition.interimResults = true;
     this._recognition.onresult = e => {
-      const t = e.results[0][0].transcript;
-      if (this.onTranscript) this.onTranscript(t);
+      let transcript = '';
+
+      for(let i = e.resultIndex; i < e.results.length; i++) {
+          transcript += e.results[i][0].transcript;
+      }
+
+      const input = document.getElementById('user-input');
+
+      if(input){
+          input.value = transcript;
+      }
     };
     this._recognition.onerror = () => {};
   }
 
   startListening() {
-    if (!this._recognition) return false;
-    try { this._recognition.start(); return true; } catch { return false; }
+    if(!this._recognition) return false;
+
+    this.isListening = true;
+
+    try{
+        this._recognition.start();
+        return true;
+    }catch{
+        return false;
+    }
   }
 
   stopListening() {
-    if (this._recognition) this._recognition.stop();
+    this.isListening = false;
+
+    if(this._recognition){
+        this._recognition.stop();
+    }
   }
 
   get sttSupported() {

@@ -116,10 +116,9 @@
           <!-- Accesibilidad audio (Elemento 11) -->
           <div class="audio-controls">
             <button id="tts-toggle" class="btn-icon active" title="Activar/pausar voz" aria-label="Activar o pausar voz">🔊</button>
-            <button id="mic-btn" class="btn-icon" title="Usar micrófono" aria-label="Usar micrófono">🎤</button>
           </div>
           <label class="control-label" for="speech-rate">Velocidad:</label>
-          <input type="range" id="speech-rate" min="0.5" max="1.5" step="0.1" value="0.9"
+          <input type="range" id="speech-rate" min="0.2" max="2" step="0.1" value="1"
             aria-label="Velocidad de la voz de ALEX">
 
           <!-- Panel de accesibilidad (Elemento 11) -->
@@ -147,11 +146,23 @@
         <div id="chat-messages" role="log" aria-live="polite" aria-label="Conversación con ALEX"></div>
         <div class="quick-replies" id="quick-replies-container" role="group" aria-label="Respuestas rápidas"></div>
         <div class="input-area">
-          <textarea id="user-input" rows="2"
-            placeholder="Escribe cómo responderías en esta situación... (Enter para enviar)"
-            aria-label="Escribe tu mensaje a ALEX"
-            maxlength="500"></textarea>
-          <button id="send-btn" class="btn-primary" aria-label="Enviar mensaje">Enviar</button>
+            <button id="chat-mic-btn"
+                    class="btn-icon"
+                    title="Hablar">
+                🎤
+            </button>
+
+            <textarea
+                id="user-input"
+                rows="1"
+                placeholder="Habla o escribe..."
+            ></textarea>
+
+            <button
+                id="send-btn"
+                class="btn-primary">
+                ➤
+            </button>
         </div>
       </div>
 
