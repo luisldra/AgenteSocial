@@ -5,6 +5,7 @@ const EMOTION_COLORS = {
   surprised: '#fde68a',
   thinking:  '#c4b5fd',
   confused:  '#fca5a5',
+  listening: '#93c5fd'
 };
 
 const EMOTION_LABELS = {
@@ -14,6 +15,7 @@ const EMOTION_LABELS = {
   surprised: '😲 Sorprendido',
   thinking:  '🤔 Pensando',
   confused:  '😕 Confundido',
+  listening: '👂 Escuchando'
 };
 
 const EMOTION_CONFIGS = {
@@ -23,6 +25,7 @@ const EMOTION_CONFIGS = {
   surprised: { browsOffset:-11, browsAngle:0,     eyeScale:1.1,  mouthType:'open',     color: EMOTION_COLORS.surprised },
   thinking:  { browsOffset:-4,  browsAngle:-0.22, eyeScale:1,    mouthType:'thinking', color: EMOTION_COLORS.thinking  },
   confused:  { browsOffset:3,   browsAngle:0.1,   eyeScale:1,    mouthType:'wavy',     color: EMOTION_COLORS.confused  },
+  listening: { browsOffset:-2,  browsAngle:-0.05, eyeScale:1,    mouthType:'neutral',  color: EMOTION_COLORS.listening }
 };
 
 class AvatarController {
@@ -35,8 +38,8 @@ class AvatarController {
     this.current = 'neutral';
     this._blinkTimer = null;
     this._scheduleNextBlink();
-    
-    this.targetEyePos = { x: 0, y: 0 };
+
+    this.targetEyePos = {x:0, y:0};
     this.interactionState = null;
     this.interactionTimer = null;
     this._setupInteractions();
@@ -119,6 +122,9 @@ class AvatarController {
   setEmotion(emotion) {
     if (!EMOTION_COLORS[emotion]) return;
     this.current = emotion;
+    this.canvas.classList.remove("emotion-pop");
+    void this.canvas.offsetWidth;
+    this.canvas.classList.add("emotion-pop");
     this._draw();
     // Actualizar etiqueta texto (doble canal — Elemento 5)
     const lbl = document.getElementById('emotion-label');
@@ -138,7 +144,7 @@ class AvatarController {
 
     // ── CABEZA ──────────────────────────────────────────
     ctx.beginPath();
-    ctx.ellipse(cx, cy, 82, 92, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, cy, 105, 118, 0, 0, Math.PI * 2);
     ctx.fillStyle = '#1a3a5c';
     ctx.fill();
     ctx.strokeStyle = cfg.color;
@@ -161,9 +167,9 @@ class AvatarController {
     });
 
     // ── OJOS ────────────────────────────────────────────
-    const eyeR = 26 * cfg.eyeScale;
+    const eyeR = 32 * cfg.eyeScale;
     const eyeY = cy - 18;
-    [cx-30, cx+30].forEach(ex => {
+    [cx-40, cx+40].forEach(ex => {
       // Blanco del ojo
       ctx.beginPath();
       ctx.ellipse(ex, eyeY, eyeR, blinking ? 3 : eyeR, 0, 0, Math.PI * 2);

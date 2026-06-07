@@ -33,7 +33,10 @@
         
         <div class="keys-inputs">
           <div class="key-box">
-            <label><strong>Keys Groq</strong></label>
+            <label style="display:flex; justify-content:space-between; align-items:center;">
+              <strong>Keys Groq</strong>
+              <a href="https://console.groq.com/keys" target="_blank" style="font-size: 0.75rem; color: var(--primary); text-decoration: underline;">Obtener aquí</a>
+            </label>
             <div id="groq-keys-container" style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;">
               <div class="key-row" style="display:flex; gap:4px; align-items:center;">
                 <input type="password" class="key-input groq-key" placeholder="Key Groq (gsk_...)">
@@ -43,7 +46,10 @@
             <button id="add-groq-btn" class="btn-action" style="font-size:0.7rem;">+ Añadir Groq</button>
           </div>
           <div class="key-box">
-            <label><strong>Keys Gemini</strong></label>
+            <label style="display:flex; justify-content:space-between; align-items:center;">
+              <strong>Keys Gemini</strong>
+              <a href="https://aistudio.google.com/api-keys" target="_blank" style="font-size: 0.75rem; color: var(--primary); text-decoration: underline;">Obtener aquí</a>
+            </label>
             <div id="gemini-keys-container" style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;">
               <div class="key-row" style="display:flex; gap:4px; align-items:center;">
                 <input type="password" class="key-input gemini-key" placeholder="Key Gemini (AIza...)">
@@ -78,6 +84,58 @@
       <div class="header-actions">
         <button id="settings-btn" class="btn-icon" title="Configuración de accesibilidad" aria-label="Configuración de accesibilidad">⚙️</button>
         <button id="clear-btn" class="btn-icon" title="Nueva sesión" aria-label="Nueva sesión">🗑️</button>
+        <button id="feedback-btn" class="btn-icon" title="Historial de entrenamientos" aria-label="Historial de entrenamientos">📚</button>
+      </div>
+      <div id="settings-dropdown" class="settings-dropdown hidden">
+        <div class="settings-title">
+            ⚙️ Configuración
+        </div>
+
+        <div class="panel-label">
+            Voz
+        </div>
+
+        <button
+            id="tts-toggle"
+            class="btn-icon active">
+            🔊
+        </button>
+
+        <input
+            type="range"
+            id="speech-rate"
+            min="0.2"
+            max="2"
+            step="0.1"
+            value="1">
+
+        <hr>
+
+        <div class="panel-label">
+            Accesibilidad
+        </div>
+
+        <label class="toggle-label">
+            <input
+                type="checkbox"
+                id="reduce-brightness-modal">
+            Reducir brillo
+        </label>
+
+        <label class="toggle-label">
+            <input
+                type="checkbox"
+                id="high-contrast-modal">
+            Alto contraste
+        </label>
+
+        <hr>
+
+        <button
+            id="open-keys-btn"
+            class="btn-action">
+            🔑 Configurar Keys
+        </button>
       </div>
     </header>
 
@@ -91,7 +149,7 @@
           <div class="panel-label">Escenarios</div>
           <div id="scenarios-list"></div>
           <div class="progress-section">
-            <div class="panel-label">Progreso</div>
+            <div class="panel-label">Tu progreso social</div>
             <div id="progress-display"></div>
           </div>
         </aside>
@@ -99,42 +157,20 @@
         <!-- Avatar central -->
         <div class="avatar-center">
           <div class="avatar-glow-ring" id="avatar-glow"></div>
-          <canvas id="avatar-canvas" width="220" height="240"
+          <canvas id="avatar-canvas" width="280" height="300"
             role="img" aria-label="Expresión facial de ALEX"></canvas>
           <div class="avatar-name">ALEX</div>
           <!-- Etiqueta emoción en texto — doble canal para Asperger (Elemento 5) -->
           <div class="avatar-emotion-label" id="emotion-label" aria-live="polite">😐 Neutral</div>
-          <div class="avatar-actions">
-            <button id="greet-btn" class="btn-action">👋 Saludar</button>
-            <button id="encourage-btn" class="btn-action">💪 Anímame</button>
+          <div id="agent-status">
+            🟢 Disponible
+          </div>
+          <div
+              id="strength-summary"
+              class="strength-summary">
+              Aún no hay fortalezas registradas
           </div>
         </div>
-
-        <!-- Controles y stats derecha -->
-        <aside class="controls-panel" aria-label="Controles y estadísticas">
-          <div class="panel-label">Voz</div>
-          <!-- Accesibilidad audio (Elemento 11) -->
-          <div class="audio-controls">
-            <button id="tts-toggle" class="btn-icon active" title="Activar/pausar voz" aria-label="Activar o pausar voz">🔊</button>
-          </div>
-          <label class="control-label" for="speech-rate">Velocidad:</label>
-          <input type="range" id="speech-rate" min="0.2" max="2" step="0.1" value="1"
-            aria-label="Velocidad de la voz de ALEX">
-
-          <!-- Panel de accesibilidad (Elemento 11) -->
-          <div class="panel-label" style="margin-top:1rem;">Accesibilidad</div>
-          <label class="toggle-label">
-            <input type="checkbox" id="reduce-brightness"> Reducir brillo
-          </label>
-          <label class="toggle-label">
-            <input type="checkbox" id="high-contrast"> Alto contraste
-          </label>
-
-          <!-- API KEYS SECTION -->
-          <div class="panel-label" style="margin-top:1rem;">API Keys</div>
-          <button id="open-keys-btn" class="btn-action" style="width:100%;">🔑 Configurar Proveedor y Keys</button>
-
-        </aside>
       </div>
 
       <!-- ZONA CHAT: flotante -->
@@ -166,6 +202,42 @@
         </div>
       </div>
 
+      <!-- HISTORIAL FLOTANTE -->
+      <div
+          id="feedback-panel"
+          class="history-zone hidden">
+
+          <div
+              class="history-header">
+
+              <span>
+                  📚 Historial de Entrenamientos
+              </span>
+
+              <button
+                  id="close-feedback-btn"
+                  class="btn-icon">
+                  ✖
+              </button>
+
+          </div>
+
+          <div
+              class="history-summary">
+
+              <div id="training-total"></div>
+
+              <div id="training-average"></div>
+
+          </div>
+
+          <div
+              id="feedback-content"
+              class="history-content">
+
+          </div>
+
+      </div>
     </main>
   </div>
 

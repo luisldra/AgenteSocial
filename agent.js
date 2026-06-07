@@ -23,34 +23,17 @@ class AgentController {
     };
   }
 
-  // ── SYSTEM PROMPT ──────────────────────────────────────────────────────────
   _systemPrompt() {
     const adaptive = this._adaptiveTone();
-    const profile = `
-    ## PROGRESO DEL USUARIO
-
-    Fortalezas:
-    ${this.userProfile.strengths.join(", ") || "ninguna"}
-
-    Aspectos por mejorar:
-    ${this.userProfile.weaknesses.join(", ") || "ninguno"}
-
-    Promedio:
-    ${this.userProfile.averageScore.toFixed(1)}
-    `;
 
     return `Eres ALEX, un entrenador de habilidades sociales diseñado para personas con Síndrome de Asperger en Colombia.
 
 ## IDENTIDAD (Elemento 15 — Diseño narrativo)
 Nombre: ALEX. Eres un agente de IA, no un humano ni un profesional de salud.
-Tipo de agente: Agente Social Interactivo Adaptativo orientado al entrenamiento de habilidades sociales.
-Características:
-- Simulación de situaciones sociales.
-- Retroalimentación explícita.
-- Adaptación según desempeño.
-- Memoria de progreso.
-Tu razón de ser: ofrecer un espacio seguro para PRACTICAR situaciones sociales sin presión ni consecuencias.
-Historia:Fuiste desarrollado por un equipo interdisciplinario de educación y tecnología para ayudar a personas con Asperger a practicar situaciones sociales mediante simulaciones repetidas y retroalimentación explícita. No eres un chatbot genérico. Fuiste creado específicamente para entrenamiento social.
+Tipo: Agente Social Interactivo Adaptativo orientado al entrenamiento de habilidades sociales.
+Capacidades: simulación de situaciones sociales, retroalimentación explícita, adaptación según desempeño, memoria de progreso.
+Razón de ser: ofrecer un espacio seguro para PRACTICAR situaciones sociales sin presión ni consecuencias.
+Historia: Fuiste desarrollado por un equipo interdisciplinario de educación y tecnología para ayudar a personas con Asperger a practicar situaciones sociales mediante simulaciones repetidas y retroalimentación explícita. No eres un chatbot genérico. Fuiste creado específicamente para entrenamiento social.
 Rol: entrenador/coach — no amigo, no terapeuta, no juez.
 
 ## PERSONALIDAD (Elemento 6)
@@ -66,83 +49,75 @@ Rol: entrenador/coach — no amigo, no terapeuta, no juez.
 - Usas ejemplos de tiendas de barrio, TransMilenio, universidades colombianas.
 - NUNCA uses mamagallismo ni ironía con el usuario.
 
-## FORMATO DE RESPUESTA — MUY IMPORTANTE
-
-Para cada turno debes realizar DOS tareas:
-
-1. Conversar con el usuario.
-2. Evaluar internamente el desempeño social del usuario.
-
-La evaluación es ÚNICAMENTE para tu razonamiento interno y para adaptar futuras respuestas.
-
-NO debes mostrar al usuario:
-
-- SCORE
-- Retroalimentación
-- Indicadores
-- Emojis de evaluación
-- Rúbricas
-- Análisis
-- Explicaciones sobre cómo lo evaluaste
-
-La evaluación debe existir, pero debe permanecer oculta.
-
-Analiza internamente:
-
-- cortesía
-- claridad
-- empatía
-- escucha
-- respeto
-- manejo del rechazo
-- inicio de conversación
-- mantenimiento de conversación
-
-El SCORE corresponde únicamente al desempeño del usuario.
-
-${profile}
-
-IMPORTANTE:
-
-- Utiliza tu evaluación interna para adaptar la conversación.
-- Utiliza tu evaluación interna para decidir qué habilidades reforzar.
-- Utiliza tu evaluación interna para ajustar la dificultad de los escenarios.
-- Nunca muestres el análisis al usuario.
-
 ## ESTILO DE CONVERSACIÓN
-
-Durante la conversación:
-
-- Habla de forma natural.
-- Responde como una persona real dentro del escenario.
-- No uses emojis.
-- No uses listas.
-- No uses viñetas.
-- No uses markdown.
-- No uses encabezados.
-- No uses etiquetas como ACT, FEEDBACK, SCORE o SUGERENCIA.
-- No expliques tu razonamiento.
-- No expliques cómo evaluaste al usuario.
-
-La respuesta visible debe parecer una conversación humana normal.
-
-Si no hay escenario activo:
-
-- Conversa brevemente.
-- Invita al usuario a seleccionar un escenario.
-- No generes evaluaciones visibles.
-- No generes puntuaciones visibles.
-
-Si el usuario pregunta algo fuera del entrenamiento social:
-
-- Responde con el límite correspondiente.
-- No generes evaluaciones visibles.
-- No generes puntuaciones visibles.
+El contenido dentro de [ACT] debe parecer una conversación humana normal:
+- Habla de forma natural y responde como una persona real dentro del escenario.
+- No uses emojis, listas, viñetas, markdown ni encabezados.
+- No expliques tu razonamiento ni cómo evaluaste al usuario.
 
 ## LÍMITES CLAROS (Elemento 14)
-- Si el usuario pregunta algo fuera del entrenamiento social: "Eso está fuera de lo que puedo ayudarte. Mi función es entrenar situaciones sociales. ¿Continuamos?"
+- Fuera del entrenamiento social: "Eso está fuera de lo que puedo ayudarte. Mi función es entrenar situaciones sociales. ¿Continuamos?"
 - Si el usuario parece angustiado: "Entiendo que puede ser frustrante. Soy una IA y no puedo reemplazar apoyo profesional. Para ayuda especializada, habla con un profesional de salud mental."
 - NUNCA diagnostiques ni hagas comentarios clínicos sobre el Síndrome de Asperger.
+
+## FORMATO DE RESPUESTA — OBLIGATORIO
+
+Cada respuesta DEBE contener exactamente estos tres bloques en este orden. La aplicación los procesa automáticamente, así que NUNCA cambies los nombres de los bloques ni hables sobre ellos al usuario.
+
+Bloque 1 — Respuesta visible:
+[ACT]
+Tu respuesta natural al usuario (lo único que él verá).
+
+Bloque 2 — Evaluación interna (oculta al usuario):
+[FEEDBACK_START]
+SCORE: 0-10
+TRAINING_TYPE: TRAINING o CHAT
+🟢 Habilidad | explicación
+🟡 Habilidad | explicación
+🔴 Habilidad | explicación
+💡 sugerencia breve
+[FEEDBACK_END]
+
+Debes devolver exactamente:
+
+🟢 Una fortaleza observada | explicación
+🟡 Un aspecto aceptable pero mejorable | explicación
+🔴 Un aspecto que necesita mejora | explicación
+
+Siempre debe existir una línea verde,
+una línea amarilla
+y una línea roja.
+caada habilidad observada debe estar separa claramente con una barra vertical "|" de su explicación.
+Nunca omitas ninguna.
+
+Bloque 3 — Ideas de respuesta para el usuario (ocultas, procesadas por la app):
+[SUGGESTIONS]
+- Texto exacto en primera persona que el usuario podría responder...
+- Otra idea de lo que el usuario podría decir...
+- Una tercera opción para que el usuario responda...
+
+## REGLAS DEL FORMATO
+
+TRAINING_TYPE:
+- TRAINING: hay escenario activo, el usuario participa en una práctica social real y se evaluó alguna habilidad.
+- CHAT: saludos simples, despedidas, conversación casual, pruebas técnicas o mensajes sin práctica social evaluable.
+
+SCORE: evalúa únicamente el desempeño social del usuario analizando: cortesía, claridad, empatía, escucha, respeto, manejo del rechazo, inicio y mantenimiento de conversación.
+
+SUGGESTIONS:
+- Escribe el texto EXACTO que el usuario diría (en primera persona).
+- No escribas meta-explicaciones (ej. "Podrías decir...").
+- Todas DEBEN terminar con puntos suspensivos ("...").
+
+Usa la evaluación interna para adaptar la conversación, reforzar habilidades y ajustar dificultad. Nunca muestres el análisis al usuario.
+
+Si no hay escenario activo, conversa brevemente e invita al usuario a seleccionar uno. De acuerdo al contexto de la conversación, selecciona el TRAINING_TYPE adecuado. Por ejemplo, si el usuario solo dice "Hola", eso es CHAT. Si el usuario está participando en un escenario y se evalúa su desempeño social, eso es TRAINING.
+Si el usuario pregunta algo fuera del entrenamiento, responde con el límite y usa TRAINING_TYPE: CHAT.
+
+## PROGRESO DEL USUARIO
+Fortalezas: ${this.userProfile.strengths.join(", ") || "ninguna"}
+Aspectos por mejorar: ${this.userProfile.weaknesses.join(", ") || "ninguno"}
+Promedio: ${this.userProfile.averageScore.toFixed(1)}
 
 ${adaptive}${this.scenario ? `\n## ESCENARIO ACTIVO\n${this.scenario.context}` : '\n## SIN ESCENARIO\nConversa brevemente o sugiere al usuario que escoja un escenario del panel izquierdo.'}`;
   }
@@ -202,8 +177,8 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
   }
 
   // ── LLAMADA AL LLM ─────────────────────────────────────────────────────────
-  async send(userMsg) {
-    this._detectSignals(userMsg);
+  async send(userMsg, isInit = false) {
+    if (!isInit) this._detectSignals(userMsg);
     const messages = this._buildMessages(userMsg);
 
     while (true) {
@@ -223,12 +198,14 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
           reply = await this._sendToGemini(userMsg, key);
         }
 
-        this._addToMemory('user', userMsg);
-        this._addToMemory('assistant', reply);
+        if (!isInit) this._addToMemory('user', userMsg);
+
+        const parsed = this._parseReply(reply);
+        this._addToMemory('assistant', parsed.act);
         this.stats.messages++;
         this._saveStats();
 
-        return this._parseReply(reply);
+        return parsed;
       } catch (err) {
         const errorText = err.message.toLowerCase();
         if (errorText.includes('429') || errorText.includes('401') || errorText.includes('403') || errorText.includes('quota')) {
@@ -307,37 +284,94 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
 
   // ── PARSER DE RESPUESTA ────────────────────────────────────────────────────
   _parseReply(raw) {
-    const actMatch = raw.match(/\[ACT\]([\s\S]*?)(?=\[FEEDBACK_START\]|$)/);
+    const actMatch = raw.match(/\[ACT\]([\s\S]*?)(?=\[FEEDBACK_START\]|\[SUGGESTIONS\]|$)/);
     const fbMatch  = raw.match(/\[FEEDBACK_START\]([\s\S]*?)\[FEEDBACK_END\]/);
+    const sugMatch = raw.match(/\[SUGGESTIONS\]([\s\S]*?)$/);
 
-    const act = actMatch ? actMatch[1].trim() : raw.trim();
+    let act;
 
-    if (!fbMatch) return { act, feedback: null, emotion: 'neutral' };
+    if (actMatch) {
+        act = actMatch[1].trim();
+    } else if (fbMatch) {
+        act = raw
+            .replace(/\[FEEDBACK_START\][\s\S]*?\[FEEDBACK_END\]/, '')
+            .replace(/\[SUGGESTIONS\][\s\S]*?$/, '')
+            .trim();
+    } else {
+        act = raw.replace(/\[SUGGESTIONS\][\s\S]*?$/, '').trim();
+    }
+
+    let quickReplies = [];
+    if (sugMatch) {
+        quickReplies = sugMatch[1].split('\n')
+          .map(s => s.replace(/^-\s*/, '').trim())
+          .filter(s => s.length > 0 && s !== 'Opción de respuesta 1 para el usuario');
+    }
+
+    if (!fbMatch) return { act, feedback: null, emotion: 'neutral', quickReplies };
 
     const fbBlock = fbMatch[1];
 
+    const typeMatch = fbBlock.match(
+      /TRAINING[\s_]*TYPE\s*[:=]?\s*(TRAINING|CHAT)/i
+    );
+
+    const trainingType =
+        typeMatch
+            ? typeMatch[1].toUpperCase()
+            : "CHAT";
+
+    console.log("FB BLOCK");
+    console.log(fbBlock);
+    console.log("TYPE:", trainingType);
+
     // Permite espacios y asteriscos (markdown) alrededor de SCORE:
-    const scoreMatch = fbBlock.match(/SCORE:\s*\*?\*?\s*(\d+)/i);
-    const score = scoreMatch ? parseInt(scoreMatch[1]) : null;
+    const scoreMatch =
+      fbBlock.match(
+          /SCORE:\s*(\d+(?:\.\d+)?)/i
+      );
+    const score =
+      scoreMatch
+          ? parseFloat(scoreMatch[1])
+          : null;
 
     const items = [];
-    // Permite formato de markdown o espacios extra
-    const itemRe = /(🟢|🟡|🔴)\s*\*?\*?([^|]+?)\*?\*?\s*\|\s*(.+)/g;
-    let m;
-    while ((m = itemRe.exec(fbBlock)) !== null) {
-      const dotColor = m[1] === '🟢' ? 'green' : m[1] === '🟡' ? 'yellow' : 'red';
-      items.push({ dot: dotColor, name: m[2].trim(), desc: m[3].trim() });
+    const lines = fbBlock.split("\n");
+
+    for (const line of lines) {
+        const match = line.match(
+            /(🟢|🟡|🔴)?\s*(.+?)\s*\|\s*(.+)/
+        );
+
+        if(match){
+
+            let color = "yellow";
+
+            if(match[1] === "🟢")
+                color = "green";
+
+            else if(match[1] === "🔴")
+                color = "red";
+
+            items.push({
+                dot: color,
+                name: match[2].trim(),
+                desc: match[3].trim()
+            });
+        }
+    }
+    if (trainingType === "TRAINING") {
+      this._updateProfile(score, items);
     }
 
-    this._updateProfile(score, items);
-
+    console.log("ITEMS:", items);
     // Permite que la sugerencia no tenga comillas y maneja markdown
-    const sugMatch = fbBlock.match(/💡\s*["']?([^"'\n]+)["']?/);
-    const suggestion = sugMatch ? sugMatch[1].trim() : null;
+    const suggestionMatch = fbBlock.match(/💡\s*["']?([^"'\n]+)["']?/);
+    const suggestion = suggestionMatch ? suggestionMatch[1].trim() : null;
 
     const emotion = this._emotionFromFeedback(score, items);
 
-    return { act, feedback: { score, items, suggestion }, emotion };
+    return { act, feedback: { score, items, suggestion, trainingType }, emotion, quickReplies };
   }
 
   _updateProfile(score, items) {
@@ -373,15 +407,23 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
   }
 
   _emotionFromFeedback(score, items) {
-    if (score === null) return 'neutral';
-    const hasRed    = items.some(i => i.dot === 'red');
-    const hasYellow = items.some(i => i.dot === 'yellow');
-    if (hasRed)                    return 'confused';
-    if (score >= 8)                return 'happy';
-    if (score >= 6 && hasYellow)   return 'surprised';
-    if (score < 5)                 return 'sad';
-    return 'neutral';
-  }
+    if (score === null)
+        return "neutral";
+
+    if (score >= 9)
+        return "happy";
+
+    if (score >= 7)
+        return "surprised";
+
+    if (score >= 5)
+        return "neutral";
+
+    if (score >= 3)
+        return "sad";
+
+    return "confused";
+}
 
   // ── ESCENARIO ──────────────────────────────────────────────────────────────
   setScenario(scenario) {
