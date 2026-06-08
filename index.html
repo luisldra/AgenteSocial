@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ALEX — Entrenador de Habilidades Sociales</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
 <body>
 
   <!-- PANTALLA ÉTICA (Elemento 10) -->
@@ -19,12 +25,20 @@
       <div class="ethics-notice">
         <p><strong>⚠️ Lee esto antes de continuar:</strong></p>
         <ul>
+<<<<<<< HEAD
           <li><strong>ALEX es una Inteligencia Artificial</strong>, no es un humano ni un profesional de salud mental.
           </li>
           <li>Está diseñado para <em>practicar situaciones sociales</em> en un ambiente seguro y sin juicios.</li>
         </ul>
       </div>
 
+=======
+          <li><strong>ALEX es una Inteligencia Artificial</strong>, no es un humano ni un profesional de salud mental.</li>
+          <li>Está diseñado para <em>practicar situaciones sociales</em> en un ambiente seguro y sin juicios.</li>
+        </ul>
+      </div>
+      
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
       <div id="api-keys-module" class="api-setup">
         <div class="provider-selector">
           <label for="provider-select"><strong>Proveedor Inicial:</strong></label>
@@ -33,19 +47,31 @@
             <option value="gemini">Gemini</option>
           </select>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
         <div class="keys-inputs">
           <div class="key-box">
             <label style="display:flex; justify-content:space-between; align-items:center;">
               <strong>Keys Groq</strong>
+<<<<<<< HEAD
               <a href="https://console.groq.com/keys" target="_blank"
                 style="font-size: 0.75rem; color: var(--primary); text-decoration: underline;">Obtener aquí</a>
+=======
+              <a href="https://console.groq.com/keys" target="_blank" style="font-size: 0.75rem; color: var(--primary); text-decoration: underline;">Obtener aquí</a>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
             </label>
             <div id="groq-keys-container" style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;">
               <div class="key-row" style="display:flex; gap:4px; align-items:center;">
                 <input type="password" class="key-input groq-key" placeholder="Key Groq (gsk_...)">
+<<<<<<< HEAD
                 <button class="btn-icon delete-key-btn" style="color:#ef4444; font-size:1rem; cursor:pointer;"
                   title="Eliminar llave">✖</button>
+=======
+                <button class="btn-icon delete-key-btn" style="color:#ef4444; font-size:1rem; cursor:pointer;" title="Eliminar llave">✖</button>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
               </div>
             </div>
             <button id="add-groq-btn" class="btn-action" style="font-size:0.7rem;">+ Añadir Groq</button>
@@ -53,21 +79,33 @@
           <div class="key-box">
             <label style="display:flex; justify-content:space-between; align-items:center;">
               <strong>Keys Gemini</strong>
+<<<<<<< HEAD
               <a href="https://aistudio.google.com/api-keys" target="_blank"
                 style="font-size: 0.75rem; color: var(--primary); text-decoration: underline;">Obtener aquí</a>
+=======
+              <a href="https://aistudio.google.com/api-keys" target="_blank" style="font-size: 0.75rem; color: var(--primary); text-decoration: underline;">Obtener aquí</a>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
             </label>
             <div id="gemini-keys-container" style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;">
               <div class="key-row" style="display:flex; gap:4px; align-items:center;">
                 <input type="password" class="key-input gemini-key" placeholder="Key Gemini (AIza...)">
+<<<<<<< HEAD
                 <button class="btn-icon delete-key-btn" style="color:#ef4444; font-size:1rem; cursor:pointer;"
                   title="Eliminar llave">✖</button>
+=======
+                <button class="btn-icon delete-key-btn" style="color:#ef4444; font-size:1rem; cursor:pointer;" title="Eliminar llave">✖</button>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
               </div>
             </div>
             <button id="add-gemini-btn" class="btn-action" style="font-size:0.7rem;">+ Añadir Gemini</button>
           </div>
         </div>
+<<<<<<< HEAD
         <small id="api-key-hint">Tus keys nunca salen del navegador. Si una falla por límite, rotará
           automáticamente.</small>
+=======
+        <small id="api-key-hint">Tus keys nunca salen del navegador. Si una falla por límite, rotará automáticamente.</small>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
       </div>
 
       <button id="start-btn" class="btn-primary" disabled>Entiendo y quiero practicar</button>
@@ -77,6 +115,7 @@
   <!-- PANTALLA PRINCIPAL (Elemento 16: hogar/educativo, individual, PC) -->
   <div id="main-screen" class="screen">
 
+<<<<<<< HEAD
     <!-- MODAL DE KEYS (Oculto) -->
     <div id="keys-modal" class="modal-overlay">
       <div class="modal-card">
@@ -109,10 +148,52 @@
         </button>
 
         <input type="range" id="speech-rate" min="0.2" max="2" step="0.1" value="1">
+=======
+  <!-- MODAL DE KEYS (Oculto) -->
+  <div id="keys-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Configuración de API Keys</h3>
+        <button id="close-modal-btn" class="btn-icon">✖</button>
+      </div>
+      <div id="keys-modal-body"></div>
+    </div>
+  </div>
+    <header class="app-header">
+      <span class="app-title">ALEX <span class="app-subtitle">Entrenador Social</span></span>
+      <div class="header-actions">
+        <button id="settings-btn" class="btn-icon" title="Configuración de accesibilidad" aria-label="Configuración de accesibilidad">⚙️</button>
+        <button id="clear-btn" class="btn-icon" title="Nueva sesión" aria-label="Nueva sesión">🗑️</button>
+        <button id="feedback-btn" class="btn-icon" title="Historial de entrenamientos" aria-label="Historial de entrenamientos">📚</button>
+      </div>
+      <div id="settings-dropdown" class="settings-dropdown hidden">
+        <div class="settings-title">
+            ⚙️ Configuración
+        </div>
+
+        <div class="panel-label">
+            Voz
+        </div>
+
+        <button
+            id="tts-toggle"
+            class="btn-icon active">
+            🔊
+        </button>
+
+        <input
+            type="range"
+            id="speech-rate"
+            min="0.2"
+            max="2"
+            step="0.1"
+            value="1">
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
 
         <hr>
 
         <div class="panel-label">
+<<<<<<< HEAD
           Accesibilidad
         </div>
 
@@ -124,12 +205,36 @@
         <label class="toggle-label">
           <input type="checkbox" id="high-contrast-modal">
           Alto contraste
+=======
+            Accesibilidad
+        </div>
+
+        <label class="toggle-label">
+            <input
+                type="checkbox"
+                id="reduce-brightness-modal">
+            Reducir brillo
+        </label>
+
+        <label class="toggle-label">
+            <input
+                type="checkbox"
+                id="high-contrast-modal">
+            Alto contraste
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
         </label>
 
         <hr>
 
+<<<<<<< HEAD
         <button id="open-keys-btn" class="btn-action">
           🔑 Configurar Keys
+=======
+        <button
+            id="open-keys-btn"
+            class="btn-action">
+            🔑 Configurar Keys
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
         </button>
       </div>
     </header>
@@ -145,22 +250,38 @@
           <div id="scenarios-list"></div>
           <div class="progress-section">
             <div class="panel-label">Tu progreso social</div>
+<<<<<<< HEAD
             <div id="progress-display" class="progress-card"></div>
+=======
+            <div id="progress-display"></div>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
           </div>
         </aside>
 
         <!-- Avatar central -->
         <div class="avatar-center">
           <div class="avatar-glow-ring" id="avatar-glow"></div>
+<<<<<<< HEAD
           <canvas id="avatar-canvas" width="280" height="300" role="img" aria-label="Expresión facial de ALEX"></canvas>
+=======
+          <canvas id="avatar-canvas" width="280" height="300"
+            role="img" aria-label="Expresión facial de ALEX"></canvas>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
           <div class="avatar-name">ALEX</div>
           <!-- Etiqueta emoción en texto — doble canal para Asperger (Elemento 5) -->
           <div class="avatar-emotion-label" id="emotion-label" aria-live="polite">😐 Neutral</div>
           <div id="agent-status">
             🟢 Disponible
           </div>
+<<<<<<< HEAD
           <div id="strength-summary" class="strength-summary">
             Aún no hay fortalezas registradas
+=======
+          <div
+              id="strength-summary"
+              class="strength-summary">
+              Aún no hay fortalezas registradas
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
           </div>
         </div>
       </div>
@@ -169,14 +290,19 @@
       <div class="chat-zone" id="chat-zone">
         <div class="chat-header" id="chat-header" aria-label="Minimizar o expandir chat">
           <span>💬 Chat con ALEX</span>
+<<<<<<< HEAD
           <div class="chat-header-buttons">
             <button id="clear-btn" class="btn-clear-chat" title="Reiniciar conversación">🗑️ Reiniciar</button>
             <button id="minimize-chat-btn" class="btn-icon" title="Minimizar chat">_</button>
           </div>
+=======
+          <button id="minimize-chat-btn" class="btn-icon" title="Minimizar chat">_</button>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
         </div>
         <div id="chat-messages" role="log" aria-live="polite" aria-label="Conversación con ALEX"></div>
         <div class="quick-replies" id="quick-replies-container" role="group" aria-label="Respuestas rápidas"></div>
         <div class="input-area">
+<<<<<<< HEAD
           <button id="chat-mic-btn" class="btn-icon" title="Hablar">
             🎤
           </button>
@@ -186,10 +312,30 @@
           <button id="send-btn" class="btn-primary">
             ➤
           </button>
+=======
+            <button id="chat-mic-btn"
+                    class="btn-icon"
+                    title="Hablar">
+                🎤
+            </button>
+
+            <textarea
+                id="user-input"
+                rows="1"
+                placeholder="Habla o escribe..."
+            ></textarea>
+
+            <button
+                id="send-btn"
+                class="btn-primary">
+                ➤
+            </button>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
         </div>
       </div>
 
       <!-- HISTORIAL FLOTANTE -->
+<<<<<<< HEAD
       <div id="feedback-panel" class="history-zone hidden">
 
         <div class="history-header">
@@ -215,6 +361,41 @@
         <div id="feedback-content" class="history-content">
 
         </div>
+=======
+      <div
+          id="feedback-panel"
+          class="history-zone hidden">
+
+          <div
+              class="history-header">
+
+              <span>
+                  📚 Historial de Entrenamientos
+              </span>
+
+              <button
+                  id="close-feedback-btn"
+                  class="btn-icon">
+                  ✖
+              </button>
+
+          </div>
+
+          <div
+              class="history-summary">
+
+              <div id="training-total"></div>
+
+              <div id="training-average"></div>
+
+          </div>
+
+          <div
+              id="feedback-content"
+              class="history-content">
+
+          </div>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
 
       </div>
     </main>
@@ -226,5 +407,9 @@
   <script src="speech.js"></script>
   <script src="app.js"></script>
 </body>
+<<<<<<< HEAD
 
 </html>
+=======
+</html>
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038

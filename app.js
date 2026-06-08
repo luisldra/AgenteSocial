@@ -267,7 +267,11 @@ async function _send() {
     avatar.setEmotion(emotion);
     setAgentStatus("💬 Respondiendo...");
 
+<<<<<<< HEAD
     if (act) _appendMessage('agent', act, feedback, text);
+=======
+    if (act) _appendMessage('agent', act);
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
 
     if (feedback && feedback.trainingType === "TRAINING") {
       _saveTraining({
@@ -322,6 +326,7 @@ async function _send() {
 }
 
 // ── RENDERIZADO DE MENSAJES ────────────────────────────────────────────────
+<<<<<<< HEAD
 function _appendMessage(role, content, feedback = null, userMsg = null) {
   const log = document.getElementById('chat-messages');
   
@@ -433,6 +438,14 @@ function _appendMessage(role, content, feedback = null, userMsg = null) {
   }
   
   log.appendChild(wrapper);
+=======
+function _appendMessage(role, content) {
+  const log = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className   = `message ${role}`;
+  div.textContent = content;
+  log.appendChild(div);
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
   log.scrollTop = log.scrollHeight;
 }
 
@@ -1053,8 +1066,11 @@ function _clear() {
       "alex_training_history"
   );
   _renderTrainingHistory();
+<<<<<<< HEAD
   _renderStats();
   _renderStrengthSummary();
+=======
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
   document.getElementById('chat-messages').innerHTML = '';
   _clearQR();
   _renderScenarios();

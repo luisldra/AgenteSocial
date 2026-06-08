@@ -72,20 +72,38 @@ Bloque 2 — Evaluación interna (oculta al usuario):
 [FEEDBACK_START]
 SCORE: 0-10
 TRAINING_TYPE: TRAINING o CHAT
+<<<<<<< HEAD
 EMOTION: neutral | happy | sad | surprised | thinking | confused | listening | excited | empathetic | worried | curious
 🟢 Habilidad | "fragmento de la respuesta del usuario que causó esta fortaleza" | explicación
 🟡 Habilidad | "fragmento de la respuesta del usuario que se puede mejorar" | explicación
 🔴 Habilidad | "fragmento de la respuesta del usuario que causó el error o mejora" | explicación
+=======
+🟢 Habilidad | explicación
+🟡 Habilidad | explicación
+🔴 Habilidad | explicación
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
 💡 sugerencia breve
 [FEEDBACK_END]
 
 Debes devolver exactamente:
+<<<<<<< HEAD
 - EMOTION: Elige la emoción que debe expresar ALEX en base al desempeño del usuario y su estado (por ejemplo, "excited" si lo hace excelente, "empathetic" si tiene dificultades, "sad" si es frío/irrespetuoso, etc.).
 - 🟢 Una fortaleza observada | "fragmento exacto entre comillas" | explicación
 - 🟡 Un aspecto aceptable pero mejorable | "fragmento exacto entre comillas" | explicación
 - 🔴 Un aspecto que necesita mejora | "fragmento exacto entre comillas" | explicación
 
 Cada habilidad observada debe estar separada por barras verticales "|". El segundo elemento debe ser obligatoriamente el fragmento literal de la respuesta del usuario (entre comillas dobles) que causó o motivó esa retroalimentación. Si te refieres al mensaje en general, coloca "Mensaje completo".
+=======
+
+🟢 Una fortaleza observada | explicación
+🟡 Un aspecto aceptable pero mejorable | explicación
+🔴 Un aspecto que necesita mejora | explicación
+
+Siempre debe existir una línea verde,
+una línea amarilla
+y una línea roja.
+caada habilidad observada debe estar separa claramente con una barra vertical "|" de su explicación.
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
 Nunca omitas ninguna.
 
 Bloque 3 — Ideas de respuesta para el usuario (ocultas, procesadas por la app):
@@ -337,6 +355,7 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
     const lines = fbBlock.split("\n");
 
     for (const line of lines) {
+<<<<<<< HEAD
         // Encontrar si la línea inicia con un emoji de color
         const emojiMatch = line.match(/^\s*(🟢|🟡|🔴)?\s*(.*)$/);
         if (!emojiMatch) continue;
@@ -366,6 +385,26 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
                 name: name,
                 cause: cause,
                 desc: desc
+=======
+        const match = line.match(
+            /(🟢|🟡|🔴)?\s*(.+?)\s*\|\s*(.+)/
+        );
+
+        if(match){
+
+            let color = "yellow";
+
+            if(match[1] === "🟢")
+                color = "green";
+
+            else if(match[1] === "🔴")
+                color = "red";
+
+            items.push({
+                dot: color,
+                name: match[2].trim(),
+                desc: match[3].trim()
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
             });
         }
     }
@@ -375,6 +414,7 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
 
     console.log("ITEMS:", items);
     // Permite que la sugerencia no tenga comillas y maneja markdown
+<<<<<<< HEAD
     const suggestionMatch = fbBlock.match(/💡\s*([^\n]+)/);
     const suggestion = suggestionMatch ? suggestionMatch[1].replace(/^["']|["']$/g, '').trim() : null;
 
@@ -386,6 +426,12 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
     if (!emotion || !supportedEmotions.includes(emotion)) {
       emotion = this._emotionFromFeedback(score, items);
     }
+=======
+    const suggestionMatch = fbBlock.match(/💡\s*["']?([^"'\n]+)["']?/);
+    const suggestion = suggestionMatch ? suggestionMatch[1].trim() : null;
+
+    const emotion = this._emotionFromFeedback(score, items);
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
 
     return { act, feedback: { score, items, suggestion, trainingType }, emotion, quickReplies };
   }
@@ -455,6 +501,7 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
     this.summary  = '';
     this.scenario = null;
     this.frustration = 0;
+<<<<<<< HEAD
     this.confidence  = 'normal';
     this.userProfile = {
       strengths: [],
@@ -466,6 +513,9 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
     this.stats = { messages:0, done:[], sessions:0 };
     localStorage.removeItem('alex_session');
     localStorage.removeItem('alex_stats');
+=======
+    localStorage.removeItem('alex_session');
+>>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
   }
 
   // ── PERSISTENCIA ──────────────────────────────────────────────────────────
