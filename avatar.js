@@ -1,5 +1,4 @@
 const EMOTION_COLORS = {
-<<<<<<< HEAD
   neutral: '#94a3b8',
   happy: '#6ee7b7',
   sad: '#7dd3fc',
@@ -39,61 +38,20 @@ const EMOTION_CONFIGS = {
   empathetic: { browsOffset: 2, browsAngle: 0.12, eyeScale: 1, mouthType: 'soft-smile', color: EMOTION_COLORS.empathetic },
   worried: { browsOffset: 4, browsAngle: 0.2, eyeScale: 0.9, mouthType: 'frown', color: EMOTION_COLORS.worried },
   curious: { browsOffset: -3, browsAngle: -0.1, eyeScale: 1, mouthType: 'thinking', color: EMOTION_COLORS.curious }
-=======
-  neutral:   '#94a3b8',
-  happy:     '#6ee7b7',
-  sad:       '#7dd3fc',
-  surprised: '#fde68a',
-  thinking:  '#c4b5fd',
-  confused:  '#fca5a5',
-  listening: '#93c5fd'
-};
-
-const EMOTION_LABELS = {
-  neutral:   '😐 Neutral',
-  happy:     '😊 Feliz',
-  sad:       '😢 Triste',
-  surprised: '😲 Sorprendido',
-  thinking:  '🤔 Pensando',
-  confused:  '😕 Confundido',
-  listening: '👂 Escuchando'
-};
-
-const EMOTION_CONFIGS = {
-  neutral:   { browsOffset:0,   browsAngle:0,     eyeScale:1,    mouthType:'neutral',  color: EMOTION_COLORS.neutral   },
-  happy:     { browsOffset:-7,  browsAngle:-0.1,  eyeScale:1,    mouthType:'smile',    color: EMOTION_COLORS.happy     },
-  sad:       { browsOffset:5,   browsAngle:0.18,  eyeScale:0.95, mouthType:'frown',    color: EMOTION_COLORS.sad       },
-  surprised: { browsOffset:-11, browsAngle:0,     eyeScale:1.1,  mouthType:'open',     color: EMOTION_COLORS.surprised },
-  thinking:  { browsOffset:-4,  browsAngle:-0.22, eyeScale:1,    mouthType:'thinking', color: EMOTION_COLORS.thinking  },
-  confused:  { browsOffset:3,   browsAngle:0.1,   eyeScale:1,    mouthType:'wavy',     color: EMOTION_COLORS.confused  },
-  listening: { browsOffset:-2,  browsAngle:-0.05, eyeScale:1,    mouthType:'neutral',  color: EMOTION_COLORS.listening }
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
 };
 
 class AvatarController {
   constructor(canvasId) {
-<<<<<<< HEAD
     this.canvas = document.getElementById(canvasId);
     if (!this.canvas) throw new Error(`AvatarController: canvas #${canvasId} not found`);
     this.ctx = this.canvas.getContext('2d');
     this.W = this.canvas.width;   // 220
     this.H = this.canvas.height;  // 240
-=======
-    this.canvas  = document.getElementById(canvasId);
-    if (!this.canvas) throw new Error(`AvatarController: canvas #${canvasId} not found`);
-    this.ctx     = this.canvas.getContext('2d');
-    this.W       = this.canvas.width;   // 220
-    this.H       = this.canvas.height;  // 240
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
     this.current = 'neutral';
     this._blinkTimer = null;
     this._scheduleNextBlink();
 
-<<<<<<< HEAD
     this.targetEyePos = { x: 0, y: 0 };
-=======
-    this.targetEyePos = {x:0, y:0};
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
     this.interactionState = null;
     this.interactionTimer = null;
     this._setupInteractions();
@@ -104,7 +62,6 @@ class AvatarController {
       const rect = this.canvas.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
-<<<<<<< HEAD
 
       const dx = e.clientX - cx;
       const dy = e.clientY - cy;
@@ -113,25 +70,10 @@ class AvatarController {
       const maxDist = 8;
       const dist = Math.min(Math.sqrt(dx * dx + dy * dy) * 0.04, maxDist);
 
-=======
-      
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      
-      const angle = Math.atan2(dy, dx);
-      const maxDist = 8;
-      const dist = Math.min(Math.sqrt(dx*dx + dy*dy) * 0.04, maxDist);
-      
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
       this.targetEyePos = {
         x: Math.cos(angle) * dist,
         y: Math.sin(angle) * dist
       };
-<<<<<<< HEAD
-
-=======
-      
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
       if (!this.interactionState && !this.canvas.classList.contains('speaking') && !this.canvas.classList.contains('thinking')) {
         this._draw();
       }
@@ -162,34 +104,21 @@ class AvatarController {
         this._triggerInteraction('happy');
       }
     });
-<<<<<<< HEAD
 
     this.canvas.addEventListener('mouseleave', () => {
       isDown = false;
       this.canvas.classList.remove('avatar-hover');
     });
-=======
-    
-    this.canvas.addEventListener('mouseleave', () => { isDown = false; });
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
   }
 
   _triggerInteraction(emotion) {
     if (this._blinkTimer) clearTimeout(this._blinkTimer);
     if (this.interactionTimer) clearTimeout(this.interactionTimer);
-<<<<<<< HEAD
 
     this.interactionState = emotion;
     const oldEmotion = this.current;
     this.setEmotion(emotion);
 
-=======
-    
-    this.interactionState = emotion;
-    const oldEmotion = this.current;
-    this.setEmotion(emotion);
-    
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
     this.interactionTimer = setTimeout(() => {
       this.interactionState = null;
       this.setEmotion(oldEmotion);
@@ -237,11 +166,7 @@ class AvatarController {
     ctx.stroke();
 
     // ── ANTENAS ─────────────────────────────────────────
-<<<<<<< HEAD
     [[cx - 32, cy - 88, cx - 40, cy - 108], [cx + 32, cy - 88, cx + 40, cy - 108]].forEach(([x1, y1, x2, y2]) => {
-=======
-    [[cx-32, cy-88, cx-40, cy-108], [cx+32, cy-88, cx+40, cy-108]].forEach(([x1,y1,x2,y2]) => {
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
@@ -256,7 +181,6 @@ class AvatarController {
     });
 
     // ── OJOS ────────────────────────────────────────────
-<<<<<<< HEAD
     const eyeY = cy - 18;
     [cx - 40, cx + 40].forEach((ex, idx) => {
       let currentEyeScale = cfg.eyeScale;
@@ -265,11 +189,6 @@ class AvatarController {
       }
       const eyeR = 32 * currentEyeScale;
 
-=======
-    const eyeR = 32 * cfg.eyeScale;
-    const eyeY = cy - 18;
-    [cx-40, cx+40].forEach(ex => {
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
       // Blanco del ojo
       ctx.beginPath();
       ctx.ellipse(ex, eyeY, eyeR, blinking ? 3 : eyeR, 0, 0, Math.PI * 2);
@@ -296,7 +215,6 @@ class AvatarController {
     ctx.lineWidth = 6;
     ctx.lineCap = 'round';
     ctx.strokeStyle = cfg.color;
-<<<<<<< HEAD
 
     let leftBrowsOffset = cfg.browsOffset;
     let rightBrowsOffset = cfg.browsOffset;
@@ -322,18 +240,6 @@ class AvatarController {
     ctx.save();
     ctx.translate(cx + 30, eyeY - defaultEyeR - 10 + rightBrowsOffset);
     ctx.rotate(rightBrowsAngle);
-=======
-    // Ceja izquierda
-    ctx.save();
-    ctx.translate(cx-30, eyeY - eyeR - 10 + cfg.browsOffset);
-    ctx.rotate(-cfg.browsAngle);
-    ctx.beginPath(); ctx.moveTo(-18, 0); ctx.lineTo(18, 0); ctx.stroke();
-    ctx.restore();
-    // Ceja derecha (ángulo espejo)
-    ctx.save();
-    ctx.translate(cx+30, eyeY - eyeR - 10 + cfg.browsOffset);
-    ctx.rotate(cfg.browsAngle);
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
     ctx.beginPath(); ctx.moveTo(-18, 0); ctx.lineTo(18, 0); ctx.stroke();
     ctx.restore();
 
@@ -355,7 +261,6 @@ class AvatarController {
     ctx.beginPath();
     switch (type) {
       case 'neutral':
-<<<<<<< HEAD
         ctx.moveTo(cx - 20, my); ctx.lineTo(cx + 20, my); break;
       case 'smile':
         ctx.moveTo(cx - 24, my - 4);
@@ -374,21 +279,11 @@ class AvatarController {
       case 'frown':
         ctx.moveTo(cx - 24, my + 4);
         ctx.bezierCurveTo(cx - 10, my - 14, cx + 10, my - 14, cx + 24, my + 4); break;
-=======
-        ctx.moveTo(cx-20, my); ctx.lineTo(cx+20, my); break;
-      case 'smile':
-        ctx.moveTo(cx-24, my-4);
-        ctx.bezierCurveTo(cx-10, my+16, cx+10, my+16, cx+24, my-4); break;
-      case 'frown':
-        ctx.moveTo(cx-24, my+4);
-        ctx.bezierCurveTo(cx-10, my-14, cx+10, my-14, cx+24, my+4); break;
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
       case 'open':
         ctx.ellipse(cx, my, 20, 14, 0, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(255,255,255,0.12)';
         ctx.fill(); break;
       case 'thinking':
-<<<<<<< HEAD
         ctx.moveTo(cx - 20, my);
         ctx.lineTo(cx + 6, my);
         ctx.bezierCurveTo(cx + 12, my, cx + 20, my - 10, cx + 20, my - 10); break;
@@ -396,15 +291,6 @@ class AvatarController {
         ctx.moveTo(cx - 20, my);
         ctx.bezierCurveTo(cx - 10, my + 8, cx, my - 8, cx + 10, my);
         ctx.bezierCurveTo(cx + 14, my + 6, cx + 18, my + 4, cx + 22, my); break;
-=======
-        ctx.moveTo(cx-20, my);
-        ctx.lineTo(cx+6, my);
-        ctx.bezierCurveTo(cx+12, my, cx+20, my-10, cx+20, my-10); break;
-      case 'wavy':
-        ctx.moveTo(cx-20, my);
-        ctx.bezierCurveTo(cx-10, my+8,  cx,    my-8,  cx+10, my);
-        ctx.bezierCurveTo(cx+14, my+6,  cx+18, my+4,  cx+22, my); break;
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
     }
     ctx.stroke();
   }
@@ -421,11 +307,7 @@ class AvatarController {
 
   animateTalking(on) {
     on ? this.canvas.classList.add('speaking')
-<<<<<<< HEAD
       : this.canvas.classList.remove('speaking');
-=======
-       : this.canvas.classList.remove('speaking');
->>>>>>> 9d23b85877eba386e465996d00eb4fdba8330038
   }
 
   animateThinking(on) {
