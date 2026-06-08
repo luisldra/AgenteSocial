@@ -267,7 +267,7 @@ async function _send() {
     avatar.setEmotion(emotion);
     setAgentStatus("💬 Respondiendo...");
 
-    if (act) _appendMessage('agent', act);
+    if (act) _appendMessage('agent', act, feedback, text);
 
     if (feedback && feedback.trainingType === "TRAINING") {
       _saveTraining({
@@ -322,12 +322,117 @@ async function _send() {
 }
 
 // ── RENDERIZADO DE MENSAJES ────────────────────────────────────────────────
-function _appendMessage(role, content) {
+function _appendMessage(role, content, feedback = null, userMsg = null) {
   const log = document.getElementById('chat-messages');
+  
+  const wrapper = document.createElement('div');
+  wrapper.className = `chat-item-wrapper ${role}`;
+  
   const div = document.createElement('div');
   div.className   = `message ${role}`;
   div.textContent = content;
-  log.appendChild(div);
+  wrapper.appendChild(div);
+  
+  if (role === 'agent' && feedback && feedback.trainingType === "TRAINING") {
+    // Crear el botón de recomendaciones
+    const btn = document.createElement('button');
+    btn.className = 'btn-inline-feedback-trigger';
+    btn.innerHTML = '💡 Ver análisis y recomendaciones de ALEX';
+    wrapper.appendChild(btn);
+    
+    // Crear la tarjeta de feedback colapsada
+    const fbCard = document.createElement('div');
+    fbCard.className = 'feedback-card-inline hidden';
+    
+    // Generar el HTML detallado del feedback
+    let userMsgHighlighted = userMsg ? userMsg : '';
+    let hasHighlight = false;
+    
+    // Identificar partes a resaltar
+    feedback.items.forEach(item => {
+      if ((item.dot === 'red' || item.dot === 'yellow') && item.cause && item.cause !== 'Mensaje completo') {
+        const escaped = item.cause.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        try {
+          const regex = new RegExp(`(${escaped})`, 'gi');
+          if (regex.test(userMsgHighlighted)) {
+            userMsgHighlighted = userMsgHighlighted.replace(regex, `<mark class="highlight-cause cause-${item.dot}">$1</mark>`);
+            hasHighlight = true;
+          }
+        } catch (e) {}
+      }
+    });
+    
+    let fbHtml = '';
+    if (userMsg) {
+      fbHtml += `
+        <div class="feedback-user-quote">
+          <strong>Tu respuesta:</strong> 
+          <p>"${userMsgHighlighted}"</p>
+          ${hasHighlight ? '<span class="highlight-hint">(El texto resaltado causó la sugerencia de mejora)</span>' : ''}
+        </div>
+      `;
+    }
+    
+    fbHtml += `
+      <div class="feedback-score-row">
+        <span>Resultado:</span>
+        <span class="feedback-score-badge ${feedback.score >= 8 ? 'high' : feedback.score >= 5 ? 'mid' : 'low'}">${feedback.score ?? "-"} / 10 ⭐</span>
+      </div>
+      <div class="feedback-details-list">
+    `;
+    
+    feedback.items.forEach(item => {
+      let causeSpan = '';
+      if (item.cause && item.cause !== 'Mensaje completo') {
+        causeSpan = `<span class="cause-quote"> (por decir: <em>"${item.cause}"</em>)</span>`;
+      }
+      
+      fbHtml += `
+        <div class="feedback-detail-item ${item.dot}">
+          <span class="feedback-dot-icon ${item.dot}"></span>
+          <div class="feedback-detail-text">
+            <strong>${item.name}:</strong>${causeSpan}
+            <p>${item.desc}</p>
+          </div>
+        </div>
+      `;
+    });
+    
+    fbHtml += `
+      </div>
+    `;
+    
+    if (feedback.suggestion) {
+      fbHtml += `
+        <div class="feedback-recommendation-box">
+          <strong>💡 Recomendación de ALEX:</strong>
+          <p>${feedback.suggestion}</p>
+        </div>
+      `;
+    }
+    
+    fbCard.innerHTML = fbHtml;
+    wrapper.appendChild(fbCard);
+    
+    // Asignar el evento del botón
+    btn.addEventListener('click', () => {
+      const isHidden = fbCard.classList.contains('hidden');
+      if (isHidden) {
+        fbCard.classList.remove('hidden');
+        fbCard.classList.add('visible');
+        btn.innerHTML = '💡 Ocultar análisis';
+        btn.classList.add('active');
+      } else {
+        fbCard.classList.add('hidden');
+        fbCard.classList.remove('visible');
+        btn.innerHTML = '💡 Ver análisis y recomendaciones de ALEX';
+        btn.classList.remove('active');
+      }
+      log.scrollTop = log.scrollHeight;
+    });
+  }
+  
+  log.appendChild(wrapper);
   log.scrollTop = log.scrollHeight;
 }
 
@@ -948,6 +1053,8 @@ function _clear() {
       "alex_training_history"
   );
   _renderTrainingHistory();
+  _renderStats();
+  _renderStrengthSummary();
   document.getElementById('chat-messages').innerHTML = '';
   _clearQR();
   _renderScenarios();

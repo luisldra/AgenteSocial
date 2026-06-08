@@ -72,22 +72,20 @@ Bloque 2 — Evaluación interna (oculta al usuario):
 [FEEDBACK_START]
 SCORE: 0-10
 TRAINING_TYPE: TRAINING o CHAT
-🟢 Habilidad | explicación
-🟡 Habilidad | explicación
-🔴 Habilidad | explicación
+EMOTION: neutral | happy | sad | surprised | thinking | confused | listening | excited | empathetic | worried | curious
+🟢 Habilidad | "fragmento de la respuesta del usuario que causó esta fortaleza" | explicación
+🟡 Habilidad | "fragmento de la respuesta del usuario que se puede mejorar" | explicación
+🔴 Habilidad | "fragmento de la respuesta del usuario que causó el error o mejora" | explicación
 💡 sugerencia breve
 [FEEDBACK_END]
 
 Debes devolver exactamente:
+- EMOTION: Elige la emoción que debe expresar ALEX en base al desempeño del usuario y su estado (por ejemplo, "excited" si lo hace excelente, "empathetic" si tiene dificultades, "sad" si es frío/irrespetuoso, etc.).
+- 🟢 Una fortaleza observada | "fragmento exacto entre comillas" | explicación
+- 🟡 Un aspecto aceptable pero mejorable | "fragmento exacto entre comillas" | explicación
+- 🔴 Un aspecto que necesita mejora | "fragmento exacto entre comillas" | explicación
 
-🟢 Una fortaleza observada | explicación
-🟡 Un aspecto aceptable pero mejorable | explicación
-🔴 Un aspecto que necesita mejora | explicación
-
-Siempre debe existir una línea verde,
-una línea amarilla
-y una línea roja.
-caada habilidad observada debe estar separa claramente con una barra vertical "|" de su explicación.
+Cada habilidad observada debe estar separada por barras verticales "|". El segundo elemento debe ser obligatoriamente el fragmento literal de la respuesta del usuario (entre comillas dobles) que causó o motivó esa retroalimentación. Si te refieres al mensaje en general, coloca "Mensaje completo".
 Nunca omitas ninguna.
 
 Bloque 3 — Ideas de respuesta para el usuario (ocultas, procesadas por la app):
@@ -339,24 +337,35 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
     const lines = fbBlock.split("\n");
 
     for (const line of lines) {
-        const match = line.match(
-            /(🟢|🟡|🔴)?\s*(.+?)\s*\|\s*(.+)/
-        );
-
-        if(match){
-
+        // Encontrar si la línea inicia con un emoji de color
+        const emojiMatch = line.match(/^\s*(🟢|🟡|🔴)?\s*(.*)$/);
+        if (!emojiMatch) continue;
+        const emoji = emojiMatch[1];
+        const rest = emojiMatch[2];
+        
+        // Separar por barras verticales
+        const parts = rest.split('|').map(p => p.trim());
+        if (parts.length >= 2) {
             let color = "yellow";
-
-            if(match[1] === "🟢")
-                color = "green";
-
-            else if(match[1] === "🔴")
-                color = "red";
-
+            if (emoji === "🟢") color = "green";
+            else if (emoji === "🔴") color = "red";
+            
+            let name, cause = "", desc;
+            if (parts.length >= 3) {
+                name = parts[0];
+                // Quitar comillas del fragmento causante
+                cause = parts[1].replace(/^["'«](.*)["'»]$/, '$1');
+                desc = parts.slice(2).join(' | ');
+            } else {
+                name = parts[0];
+                desc = parts[1];
+            }
+            
             items.push({
                 dot: color,
-                name: match[2].trim(),
-                desc: match[3].trim()
+                name: name,
+                cause: cause,
+                desc: desc
             });
         }
     }
@@ -366,10 +375,17 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
 
     console.log("ITEMS:", items);
     // Permite que la sugerencia no tenga comillas y maneja markdown
-    const suggestionMatch = fbBlock.match(/💡\s*["']?([^"'\n]+)["']?/);
-    const suggestion = suggestionMatch ? suggestionMatch[1].trim() : null;
+    const suggestionMatch = fbBlock.match(/💡\s*([^\n]+)/);
+    const suggestion = suggestionMatch ? suggestionMatch[1].replace(/^["']|["']$/g, '').trim() : null;
 
-    const emotion = this._emotionFromFeedback(score, items);
+    // Detectar emoción especificada por el LLM
+    const emotionMatch = fbBlock.match(/EMOTION:\s*([a-zA-Z]+)/i);
+    let emotion = emotionMatch ? emotionMatch[1].toLowerCase().trim() : null;
+    
+    const supportedEmotions = ['neutral', 'happy', 'sad', 'surprised', 'thinking', 'confused', 'listening', 'excited', 'empathetic', 'worried', 'curious'];
+    if (!emotion || !supportedEmotions.includes(emotion)) {
+      emotion = this._emotionFromFeedback(score, items);
+    }
 
     return { act, feedback: { score, items, suggestion, trainingType }, emotion, quickReplies };
   }
@@ -439,7 +455,17 @@ El usuario progresa bien. Puedes añadir matices y mayor complejidad al escenari
     this.summary  = '';
     this.scenario = null;
     this.frustration = 0;
+    this.confidence  = 'normal';
+    this.userProfile = {
+      strengths: [],
+      weaknesses: [],
+      averageScore: 0,
+      totalScores: 0,
+      scoreCount: 0
+    };
+    this.stats = { messages:0, done:[], sessions:0 };
     localStorage.removeItem('alex_session');
+    localStorage.removeItem('alex_stats');
   }
 
   // ── PERSISTENCIA ──────────────────────────────────────────────────────────
